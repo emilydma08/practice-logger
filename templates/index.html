@@ -1,4 +1,48 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Categories</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Header with plus button -->
+        <header class="header">
+            <h1>My Categories</h1>
+            <a href="{{ url_for('create_category') }}" class="cat-button">
+                <button class="add-category-btn">+</button>
+            </a>
+        </header>
+
+        <!-- Categories list -->
+        <div class="categories-list">
+            {% for category in categories %}
+                    <div class="category-card">
+                        <a href="{{ url_for('category_stats', category_id=loop.index) }}" id="category-list">
+                            <div class="category-icon">{{ category.icon }}</div>
+                            <div class="category-details">
+                                <h3>{{ category.name }}</h3>
+                                <p>{{ category.description }}</p>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('logger_form', category_id=loop.index) }}">
+                            <button class="log-btn">Log</button>
+                        </a>                    
+                    </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+
+<!-- <html>
     <head><title>Home</title></head>
     <body>
         <h1>Tennis Log</h1>
@@ -17,4 +61,4 @@
         </form>
     </body>
 
-</html>
+</html> -->

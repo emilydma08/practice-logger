@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Stats</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 1rem;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .more-menu-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+
+        .more-menu {
+            cursor: pointer;
+            font-size: 1.4rem;
+            background: none;
+            border: none;
+            padding: 0.2rem;
+            line-height: 1;
+        }
+
+        .menu-options {
+            display: none;
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            min-width: 100px;
+            z-index: 1000;
+        }
+
+        .menu-options div {
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .menu-options div:hover {
+            background-color: #f0f0f0;
+        }
+
+        .show-menu {
+            display: block;
+        }
+
+        .left-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .month-selector {
+            font-size: 1rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: white;
+            cursor: pointer;
+        }
+
+
+        /* Calendar Section */
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .day {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: #333;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .day.filled {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-box {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .stat-box h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .stat-box .stat-value {
+            margin-top: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="left-header">
+            <h2>{{ category["name"] }} Stats</h2>
+            <div class="more-menu-wrapper">
+                <button class="more-menu" onclick="toggleMenu(event)">⋮</button>
+                <div class="menu-options">
+                    <div>Edit</div>
+                    <div>Delete</div>
+                </div>
+            </div>
+        </div>
+    
+        <select class="month-selector">
+            <option>May 2025</option>
+            <option>April 2025</option>
+            <option>March 2025</option>
+        </select>
+    </div>
+    
+
+
+    <!-- Calendar Section -->
+    <div class="weekdays">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    </div>
+
+    <div class="calendar">
+        <!-- Empty days before the 1st of May (May starts on Thursday) -->
+        <div></div><div></div><div></div><div></div>
+
+        <!-- Example filled days (practiced) -->
+        {% for day in range(1, 32) %}
+            <div class="day {% if day in [2, 4, 10, 15, 22] %}filled{% endif %}">{{ day }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <h4>Total Sessions</h4>
+            <div class="stat-value">18</div>
+        </div>
+        <div class="stat-box">
+            <h4>Lifetime Time Spent (hrs)</h4>
+            <div class="stat-value">34</div>
+        </div>
+        <div class="stat-box">
+            <h4>Avg. Per Week (hrs)</h4>
+            <div class="stat-value">3.2</div>
+        </div>
+        <div class="stat-box">
+            <h4>Longest Session (min)</h4>
+            <div class="stat-value">90</div>
+        </div>
+    </div>
+    <script>
+        function toggleMenu(e) {
+          const menu = e.target.nextElementSibling;
+          const allMenus = document.querySelectorAll('.menu-options');
+          allMenus.forEach(m => {
+            if (m !== menu) m.classList.remove('show-menu');
+          });
+          menu.classList.toggle('show-menu');
+        }
+    
+        // Close menu if clicked outside
+        document.addEventListener('click', function(e) {
+          const isMenu = e.target.closest('.menu-options');
+          const isButton = e.target.closest('.more-menu');
+          if (!isMenu && !isButton) {
+            document.querySelectorAll('.menu-options').forEach(menu => menu.classList.remove('show-menu'));
+          }
+        });
+      </script>
+</body>
+</html>
