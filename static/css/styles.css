@@ -1,4 +1,12 @@
-/* Reset default margin and padding */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+    --yellow: #FFC670;
+    --darkYellow: #FFB133;
+    --linen: #fbf7f3;
+    --black: #130501;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,14 +14,13 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: var(--linen);
     color: #333;
 }
 
 .container {
-    max-width: 400px;  /* Limit width for mobile */
-    margin: 0 auto;    /* Center the content */
+    max-width: 400px; 
+    margin: 0 auto;   
     padding: 20px;
 }
 
@@ -25,8 +32,12 @@ body {
 }
 
 .header h1 {
-    font-size: 24px;
-    color: #333;
+    font-size: 28px;
+    color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.5px;
 }
 
 .cat-button{
@@ -34,7 +45,7 @@ body {
 }
 
 .add-category-btn {
-    background-color: #4CAF50;
+    background-color: var(--yellow);
     color: white;
     border: none;
     padding: 10px;
@@ -50,7 +61,7 @@ body {
 }
 
 .add-category-btn:hover {
-    background-color: #45a049;
+    background-color: var(--darkYellow);
 }
 
 .categories-list {
@@ -60,51 +71,64 @@ body {
 }
 
 .category-card {
-    background-color: white;
+    background-color: rgb(255,255,255);
     border-radius: 10px;
     padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    flex-direction: row;
+}
+
+.category-link{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    flex-grow: 1;
+    gap: 15px;
 }
 
 .category-icon {
     font-size: 36px;
-    margin-right: 15px;
 }
 
 .category-details {
     flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .category-details h3 {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 5px;
+    font-size: 20px;
+    color: var(--black);
+    margin-bottom: 0;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    line-height: 1.25;
 }
 
 .category-details p {
     font-size: 14px;
     color: #777;
     max-width: 95%;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    margin-top: 4px;
 }
 
 .log-btn {
-    background-color: #2196F3;
+    background-color: var(--yellow);
     color: white;
     padding: 10px 15px;
     border: none;
     font-size: 14px;
     border-radius: 5px;
     cursor: pointer;
+    font-family: 'Work Sans', sans-serif;
 }
 
 .log-btn:hover {
-    background-color: #1976D2;
-}
-
-#category-list{
-    text-decoration: none;
+    background-color: var(--darkYellow);
 }

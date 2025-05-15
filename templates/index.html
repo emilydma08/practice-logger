@@ -22,7 +22,7 @@
         <div class="categories-list">
             {% for category in categories %}
                     <div class="category-card">
-                        <a href="{{ url_for('category_stats', category_id=loop.index) }}" id="category-list">
+                        <a href="{{ url_for('category_stats', category_id=loop.index) }}" class="category-link">
                             <div class="category-icon">{{ category.icon }}</div>
                             <div class="category-details">
                                 <h3>{{ category.name }}</h3>
