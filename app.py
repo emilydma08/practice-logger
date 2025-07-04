@@ -1,22 +1,16 @@
 from flask import Flask
 from flask import render_template, request, redirect, url_for
 from datetime import date
+from test_alch import Category, SessionLocal
 
 app = Flask(__name__)
-
-categories = [
-    {"icon": "🎸", "name": "Guitar", "description": "Practice your favorite songs and improve your skills!"},
-    {"icon": "📚", "name": "SAT Prep", "description": "Boost your score with focused study sessions."},
-    {"icon": "📚", "name": "SAT Prep", "description": "Boost your score with focused study sessions."},
-    {"icon": "📚", "name": "SAT Prep", "description": "Boost your score with focused study sessions."},
-    {"icon": "📚", "name": "SAT Prep", "description": "Boost your score with focused study sessions."},
-    {"icon": "📚", "name": "SAT Prep", "description": "Boost your score with focused study sessions."},
-    {"icon": "📚", "name": "SAT Prep", "description": "Boost your score with focused study sessions."},
-]
 
 #Home Page
 @app.route("/", methods=["GET", "POST"])
 def index():
+    session = SessionLocal()
+    categories = session.query(Category).all()
+    session.close()
     return render_template('index.html', categories=categories)
 
 #Create Category Form
@@ -25,7 +19,13 @@ def create_category():
     if request.method == 'POST':
         name = request.form['name']
         icon = request.form['icon']
-        color = request.form['color']
+        description = request.form['description']
+
+        session = SessionLocal()
+        new_cat = Category(name=name, description=description, icon=icon)
+        session.add(new_cat)
+        session.commit()
+        session.close()
         # Save the new category...
         return redirect(url_for('index'))
 
