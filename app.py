@@ -1,7 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify # Added jsonify for potential future use, though not in current plan step for app.py
 from flask import render_template, request, redirect, url_for
-from datetime import date # date from datetime is used for date objects
-from test_alch import Category, SessionLocal, LogEntry # Added LogEntry
+from datetime import date, timedelta
+from test_alch import Category, SessionLocal, LogEntry
+from sqlalchemy import func # For database functions like sum, max, etc.
+from collections import defaultdict
+import math # For rounding hours
 
 app = Flask(__name__)
 
@@ -35,16 +38,79 @@ def create_category():
 def category_stats(category_id):
     session = SessionLocal()
     category = session.query(Category).filter(Category.id == category_id).first()
-    # log_entries are accessed via category.log_entries due to the relationship
-    # No specific query for log_entries needed here if relationship is set up correctly
-    if category:
-        # Access log_entries here to ensure they are loaded before closing session if needed by template
-        log_entries = category.log_entries
-        session.close()
-        return render_template('category_stats.html', category=category, log_entries=log_entries)
-    else:
+
+    if not category:
         session.close()
         return "Category not found", 404
+
+    log_entries = session.query(LogEntry).filter(LogEntry.category_id == category_id).order_by(LogEntry.date).all()
+
+    available_months = []
+    entries_by_month_day = defaultdict(lambda: defaultdict(list))
+
+    lifetime_stats = {
+        'total_sessions': 0,
+        'total_minutes': 0,
+        'longest_session_minutes': 0,
+        'avg_hours_per_week': 0,
+        'total_hours_spent': 0
+    }
+
+    if log_entries:
+        # Process entries for month/day grouping and available_months
+        min_date = log_entries[0].date
+        max_date = log_entries[-1].date
+
+        current_month_year = ""
+        for entry in log_entries:
+            month_year_str = entry.date.strftime("%Y-%m")
+            if month_year_str not in available_months:
+                available_months.append(month_year_str)
+
+            entries_by_month_day[month_year_str][entry.date.day].append({
+                'id': entry.id,
+                'date': entry.date.isoformat(),
+                'duration': entry.duration,
+                'notes': entry.notes
+            }) # Storing as dicts for easier JSON serialization later
+
+        available_months.sort()
+
+        # Calculate Lifetime Statistics
+        lifetime_stats['total_sessions'] = len(log_entries)
+
+        total_duration_query = session.query(func.sum(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
+        lifetime_stats['total_minutes'] = total_duration_query if total_duration_query else 0
+        lifetime_stats['total_hours_spent'] = math.ceil(lifetime_stats['total_minutes'] / 60)
+
+        longest_session_query = session.query(func.max(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
+        lifetime_stats['longest_session_minutes'] = longest_session_query if longest_session_query else 0
+
+        if min_date and max_date:
+            # Calculate total weeks for avg_hours_per_week
+            # If only one entry, consider it as one week of activity for averaging.
+            if min_date == max_date:
+                 # If all entries are on the same day, consider it as 1 day activity in 1 week.
+                total_days_span = 1
+            else:
+                total_days_span = (max_date - min_date).days + 1
+
+            # Consider a minimum of 1 week even if the span is less, to avoid overly large avg for short periods.
+            total_weeks = max(1, math.ceil(total_days_span / 7))
+
+            if lifetime_stats['total_minutes'] > 0 and total_weeks > 0:
+                total_hours = lifetime_stats['total_minutes'] / 60
+                lifetime_stats['avg_hours_per_week'] = round(total_hours / total_weeks, 1)
+            else:
+                lifetime_stats['avg_hours_per_week'] = 0
+
+    session.close()
+
+    return render_template('category_stats.html',
+                           category=category,
+                           log_entries_data=entries_by_month_day, # Renamed for clarity
+                           available_months=available_months,
+                           lifetime_stats=lifetime_stats)
 
 #Logger Form
 @app.route('/log/<int:category_id>', methods=['GET', 'POST'])
@@ -59,14 +125,13 @@ def logger_form(category_id):
     if request.method == 'POST':
         form_date_str = request.form['date']
         duration_str = request.form['duration']
-        notes = request.form.get('notes') # .get to handle optional notes
+        notes = request.form.get('notes')
 
-        # Convert data
-        entry_date = date.fromisoformat(form_date_str) # Use date.fromisoformat
+        entry_date = date.fromisoformat(form_date_str)
         duration_int = int(duration_str)
 
         new_log_entry = LogEntry(
-            category_id=category.id, # Use the actual category.id
+            category_id=category.id,
             date=entry_date,
             duration=duration_int,
             notes=notes
@@ -76,9 +141,8 @@ def logger_form(category_id):
         session.close()
         return redirect(url_for('category_stats', category_id=category_id))
 
-    # GET request
-    current_date_iso = date.today().isoformat() # from datetime.date
-    session.close() # Close session if only GET
+    current_date_iso = date.today().isoformat()
+    session.close()
     return render_template('logger_form.html', category=category, current_date=current_date_iso)
 
 if __name__ == '__main__':
