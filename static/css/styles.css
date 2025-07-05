@@ -250,21 +250,40 @@ form textarea {
 }
 
 .emoji-picker-container {
-    display: grid; /* Changed from none by default to grid, JS handles visibility */
+    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 5px;
-    padding: 10px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: absolute;
+    gap: 10px; /* Increased gap for better touch targets */
+    padding: 20px; /* Increased padding */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom)); /* Add padding for home bar on iOS */
+    background-color: var(--linen); /* Match body background */
+    border-top: 1px solid #ccc; /* Border only on the top */
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1); /* Shadow upwards */
+
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    max-width: 400px; /* Max width like the main container */
+    margin-left: auto;
+    margin-right: auto;
+
     z-index: 1000;
-    max-height: 200px;
+    max-height: 50vh; /* Max height relative to viewport height */
     overflow-y: auto;
-    margin-top: 5px; /* Space between button and picker */
-    width: calc(100% - 0px); /* Match width of form inputs, adjust if necessary */
     box-sizing: border-box;
+
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out, visibility 0.3s ease-out;
+}
+
+.emoji-picker-container.picker-visible {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+
 }
 
 .emoji-item {

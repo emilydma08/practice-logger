@@ -49,10 +49,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function togglePicker(forceShow) {
         if (!emojiPicker) return;
+        const isVisible = emojiPicker.classList.contains('picker-visible');
         if (typeof forceShow === 'boolean') {
-            emojiPicker.style.display = forceShow ? 'grid' : 'none';
+            if (forceShow) {
+                emojiPicker.classList.add('picker-visible');
+            } else {
+                emojiPicker.classList.remove('picker-visible');
+            }
         } else {
-            emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'grid' : 'none';
+            emojiPicker.classList.toggle('picker-visible');
         }
     }
 
