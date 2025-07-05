@@ -10,6 +10,7 @@
     <div class="container">
         <header class="header">
             <h1>Create Category</h1>
+            <a href="{{ url_for('index') }}" class="close-btn">&times;</a>
         </header>
 
         <form action="{{ url_for('create_category') }}" method="POST">
