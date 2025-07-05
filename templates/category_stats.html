@@ -212,6 +212,24 @@
             <div class="stat-value">90</div>
         </div>
     </div>
+
+    <!-- Log Entries List -->
+    <h3>Log Entries</h3>
+    {% if log_entries %}
+        <ul>
+            {% for entry in log_entries %}
+                <li>
+                    <strong>Date:</strong> {{ entry.date.isoformat() }} |
+                    <strong>Duration:</strong> {{ entry.duration }} minutes |
+                    <strong>Notes:</strong> {{ entry.notes if entry.notes else 'N/A' }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No log entries yet for this category.</p>
+    {% endif %}
+    <!-- End Log Entries List -->
+
     <script>
         function toggleMenu(e) {
           const menu = e.target.nextElementSibling;
