@@ -20,6 +20,17 @@
             </div>
 
             <div>
+                <label for="icon-display">Icon (Emoji)</label>
+                <div id="icon-display" class="icon-picker-button" tabindex="0">🎹</div> <!-- This will display the selected emoji and act as a button -->
+                <input type="hidden" id="icon" name="icon" value="🎹" required> <!-- Hidden input to store the actual emoji value -->
+                <div id="emoji-picker" class="emoji-picker-container" style="display: none;">
+                    <!-- Emojis will be populated here by JavaScript -->
+                </div>
+            </div>
+
+            <div>
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" placeholder="A brief description">
                 <label for="icon">Icon (Emoji)</label>
                 <input type="text" id="icon" name="icon" placeholder="🎹" maxlength="2" required>
             </div>
@@ -32,5 +43,6 @@
             <button type="submit" class="form-button">Create Category</button>
         </form>
     </div>
+    <script src="{{ url_for('static', filename='js/emojiPicker.js') }}"></script>
 </body>
 </html>

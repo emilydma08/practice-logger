@@ -223,3 +223,61 @@ form textarea {
     color: var(--black);
     outline: none;
 }
+
+/* Emoji Picker Styles */
+.icon-picker-button {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 1.5rem; /* Make emoji larger */
+    padding: 0.5rem; /* Adjust padding to better center the emoji */
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    width: 60px; /* Fixed width */
+    height: 50px; /* Fixed height to match other inputs better */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box;
+    line-height: 1; /* Ensure emoji is centered vertically */
+}
+
+.icon-picker-button:focus {
+    outline: none;
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 2px var(--darkYellow);
+}
+
+.emoji-picker-container {
+    display: grid; /* Changed from none by default to grid, JS handles visibility */
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 5px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 5px; /* Space between button and picker */
+    width: calc(100% - 0px); /* Match width of form inputs, adjust if necessary */
+    box-sizing: border-box;
+}
+
+.emoji-item {
+    font-size: 1.5rem;
+    padding: 5px;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.emoji-item:hover,
+.emoji-item:focus {
+    background-color: #f0f0f0;
+    outline: none;
+}
