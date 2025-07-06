@@ -10,7 +10,7 @@ class Category(Base):
     name = Column(String)
     description = Column(String)
     icon = Column(String)
-    log_entries = relationship("LogEntry", back_populates="category")
+    log_entries = relationship("LogEntry", back_populates="category", cascade="all, delete-orphan", passive_deletes=True)
 
 class LogEntry(Base):
     __tablename__ = 'log_entries'

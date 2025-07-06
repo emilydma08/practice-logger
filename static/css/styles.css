@@ -132,3 +132,455 @@ body {
 .log-btn:hover {
     background-color: var(--darkYellow);
 }
+
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Space between form elements */
+    margin-top: 20px; /* Space below the header */
+}
+
+form div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* Space between label and input */
+}
+
+form label {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--black);
+}
+
+form input[type="text"],
+form input[type="date"],
+form input[type="number"],
+form textarea {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    width: 100%; /* Make inputs take full width of the form container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+form input[type="text"]:focus,
+form input[type="date"]:focus,
+form input[type="number"]:focus,
+form textarea:focus {
+    outline: none;
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 2px var(--darkYellow);
+}
+
+
+form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-button {
+    background-color: var(--yellow);
+    color: white;
+    padding: 0.75rem 15px;
+    border: none;
+    font-size: 1rem; /* Match input font size */
+    border-radius: 8px; /* Match input border radius */
+    cursor: pointer;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 1rem; /* Add some space above the button */
+}
+
+.form-button:hover {
+    background-color: var(--darkYellow);
+}
+
+/* Close button for forms */
+.close-btn {
+    color: var(--black);
+    font-size: 30px; /* Larger size for easier tapping */
+    font-weight: bold;
+    text-decoration: none;
+    padding: 5px 10px; /* Add some padding to make it easier to click */
+    line-height: 1; /* Ensure consistent vertical alignment */
+    border-radius: 50%; /* Circular background on hover/focus */
+    width: 40px; /* Fixed width */
+    height: 40px; /* Fixed height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    background-color: #e0e0e0; /* Light grey background on hover/focus */
+    color: var(--black);
+    outline: none;
+}
+
+/* Daily Log Display Section (Category Stats) */
+#daily-log-display {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #fff; /* White background to stand out */
+    border-radius: 10px; /* Consistent with stat-box */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Consistent shadow */
+}
+
+#daily-log-display h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.2rem; /* Slightly larger title for the section */
+    color: var(--black);
+    margin-top: 0;
+    margin-bottom: 1rem; /* Space below the title */
+}
+
+#daily-log-list {
+    list-style-type: none; /* Remove default bullets */
+    padding-left: 0; /* Remove default padding */
+    margin: 0;
+}
+
+.log-entry-card {
+    background-color: var(--linen); /* Slightly different background for cards inside the white box */
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem; /* Space between log entry cards */
+    border: 1px solid #e0e0e0; /* Subtle border for cards */
+}
+
+.log-entry-card p {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--black);
+    margin: 0.25rem 0; /* Space between paragraphs within a card (e.g. duration and notes) */
+    line-height: 1.5;
+}
+
+.log-entry-card p strong {
+    font-family: 'DM Sans', sans-serif; /* Bolder font for labels */
+    font-weight: 600;
+}
+
+.log-notes { /* Specific styling for notes if needed, e.g. slightly smaller or different color */
+    font-size: 0.9rem;
+    color: #555; /* Slightly muted color for notes */
+}
+
+/* Section Title for Stats Page (e.g., "Lifetime Statistics") */
+.section-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.4rem;
+    color: var(--black);
+    margin-top: 2rem; /* Space above this section title */
+    margin-bottom: 1rem; /* Space between title and its content (e.g., stats-grid) */
+}
+
+/* Wrapper for stats section if needed for spacing with title */
+.stats-section-container {
+    margin-bottom: 2rem; /* Overall bottom margin for the section */
+}
+
+.category-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: center; /* Center buttons on the page */
+}
+
+.button.edit-action-btn,
+.button.delete-action-btn {
+    padding: 0.6rem 1rem;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    color: white; /* Default text color for buttons */
+}
+
+.button.edit-action-btn {
+    background-color: var(--yellow); /* Theme color for edit */
+}
+.button.edit-action-btn:hover {
+    background-color: var(--darkYellow);
+}
+
+.button.delete-action-btn {
+    background-color: #dc3545; /* A common red for delete actions */
+    color: white;
+}
+.button.delete-action-btn:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity for overlay */
+    justify-content: center; /* Center content horizontally (for flex display) */
+    align-items: center; /* Center content vertically (for flex display) */
+}
+
+.modal.modal-visible {
+    display: flex; /* Use flex to center content */
+}
+
+.modal-content {
+    background-color: var(--linen);
+    margin: auto; /* Handles centering for display:block, flex handles it for display:flex */
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width: 85%;
+    max-width: 380px; /* Slightly less than container max-width */
+    text-align: center;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.modal-content h2 {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--black);
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.modal-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.modal-content p strong { /* For the category name in the message */
+    font-weight: 600;
+    color: var(--black);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-around; /* Distribute buttons */
+    gap: 1rem; /* Space between buttons */
+}
+
+.modal-actions .button { /* General styling for buttons in modal */
+    flex-grow: 1; /* Make buttons take equal width */
+}
+
+.button.secondary-action-btn { /* For Cancel button */
+    background-color: #6c757d; /* Bootstrap secondary grey */
+    color: white;
+}
+.button.secondary-action-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Ensure delete button in modal also uses .button and .delete-action-btn classes */
+/* .delete-action-btn is already defined with red background */
+
+
+/* Category Stats Page Styles */
+.month-selector-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: flex-end; /* Aligns selector to the right */
+}
+
+.month-selector {
+    font-family: 'Work Sans', sans-serif; /* Match other form elements */
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem; /* Consistent padding */
+    border-radius: 8px; /* Consistent border-radius */
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+}
+
+.calendar-wrapper {
+    margin-bottom: 1.5rem; /* Overall margin for the calendar section */
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-family: 'DM Sans', sans-serif; /* Heading font */
+    font-weight: 600;
+    font-size: 0.9rem; /* Slightly smaller */
+    color: var(--black);
+    margin-bottom: 0.5rem;
+    padding: 0 5px; /* Align with calendar day padding */
+}
+
+.weekdays div {
+    padding: 0.25rem 0; /* Vertical padding for weekday names */
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px; /* Gap between day cells */
+    padding: 5px; /* Padding around the grid of days */
+    background-color: #fff; /* Optional: background for the calendar area */
+    border-radius: 8px; /* Optional: rounded corners for the calendar block */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow */
+}
+
+.day {
+    /* width: 40px; height: 40px; -- Replaced by aspect-ratio and padding */
+    aspect-ratio: 1 / 1; /* Make cells square */
+    border-radius: 50%;
+    background-color: #e0e0e0; /* Default for empty/non-active days */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--black);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    line-height: 1; /* Ensure text is centered well */
+}
+
+.day.day-active {
+    background-color: var(--yellow); /* Use theme color */
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.day.day-active:hover {
+    background-color: var(--darkYellow);
+}
+
+.day.day-inactive {
+    background-color: transparent; /* Make them blend with calendar background */
+    visibility: hidden; /* Or keep visible with very low opacity if preferred for structure */
+    /* If making them visible for structure:
+    background-color: #f8f8f8;
+    color: #ccc;
+    */
+}
+
+/* Stats Grid - Styles from inline, slightly adjusted */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Consistent shadow */
+    padding: 1rem; /* Adjusted padding */
+    text-align: center;
+}
+
+.stat-box h4 {
+    margin: 0 0 0.5rem 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; /* Adjusted size */
+    color: #555;
+    font-weight: 600;
+}
+
+.stat-box .stat-value {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 1.8rem; /* Adjusted size */
+    font-weight: 700;
+    color: var(--black);
+}
+
+/* Emoji Picker Styles */
+.icon-picker-button {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 1.5rem; /* Make emoji larger */
+    padding: 0.5rem; /* Adjust padding to better center the emoji */
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    width: 60px; /* Fixed width */
+    height: 50px; /* Fixed height to match other inputs better */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box;
+    line-height: 1; /* Ensure emoji is centered vertically */
+}
+
+.icon-picker-button:focus {
+    outline: none;
+    border-color: var(--yellow);
+    box-shadow: 0 0 0 2px var(--darkYellow);
+}
+
+.emoji-picker-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 10px; /* Increased gap for better touch targets */
+    padding: 20px; /* Increased padding */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom)); /* Add padding for home bar on iOS */
+    background-color: var(--linen); /* Match body background */
+    border-top: 1px solid #ccc; /* Border only on the top */
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1); /* Shadow upwards */
+
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    max-width: 400px; /* Max width like the main container */
+    margin-left: auto;
+    margin-right: auto;
+
+    z-index: 1000;
+    max-height: 50vh; /* Max height relative to viewport height */
+    overflow-y: auto;
+    box-sizing: border-box;
+
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out, visibility 0.3s ease-out;
+}
+
+.emoji-picker-container.picker-visible {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.emoji-item {
+    font-size: 1.5rem;
+    padding: 5px;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.emoji-item:hover,
+.emoji-item:focus {
+    background-color: #f0f0f0;
+    outline: none;
+}

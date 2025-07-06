@@ -4,71 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Category</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 1.5rem;
-            max-width: 400px;
-            margin: auto;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        input[type="color"] {
-            padding: 0.75rem;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-        }
-
-        button {
-            padding: 0.75rem;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
 </head>
 <body>
+    <div class="container">
+        <header class="header">
+            <h1>Create Category</h1>
+            <a href="{{ url_for('index') }}" class="close-btn">&times;</a>
+        </header>
 
-    <h2>Create a New Category</h2>
+        <form action="{{ url_for('create_category') }}" method="POST">
+            <div>
+                <label for="name">Category Name</label>
+                <input type="text" id="name" name="name" placeholder="e.g. Piano, Math, Coding" required>
+            </div>
 
-    <form action="{{ url_for('create_category') }}" method="POST">
-        <div>
-            <label for="name">Category Name</label>
-            <input type="text" id="name" name="name" placeholder="e.g. Piano, Math, Coding" required>
-        </div>
+            <div>
+                <label for="icon-display">Icon (Emoji)</label>
+                <div id="icon-display" class="icon-picker-button" tabindex="0">🎹</div> <!-- This will display the selected emoji and act as a button -->
+                <input type="hidden" id="icon" name="icon" value="🎹" required> <!-- Hidden input to store the actual emoji value -->
+                <div id="emoji-picker" class="emoji-picker-container">
+                    <!-- Emojis will be populated here by JavaScript -->
+                </div>
+            </div>
 
-        <div>
-            <label for="icon">Icon (Emoji)</label>
-            <input type="text" id="icon" name="icon" placeholder="🎹" maxlength="2" required>
-        </div>
+            <div>
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" placeholder="A brief description">
+            </div>
 
-        <div>
-            <label for="color">Description</label>
-            <input type="textarea" id="description" name="description">
-        </div>
-
-        <button type="submit">Create Category</button>
-    </form>
-
+            <button type="submit" class="form-button">Create Category</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/emojiPicker.js') }}"></script>
 </body>
 </html>
