@@ -5,8 +5,21 @@ from test_alch import Category, SessionLocal, LogEntry
 from sqlalchemy import func # For database functions like sum, max, etc.
 from collections import defaultdict
 import math # For rounding hours
+from datetime import datetime # For parsing month string
 
 app = Flask(__name__)
+
+# Custom Jinja filter to format 'YYYY-MM' to 'Month YYYY'
+def format_month_year(value_str):
+    if not value_str:
+        return ""
+    try:
+        dt_object = datetime.strptime(value_str, "%Y-%m")
+        return dt_object.strftime("%B %Y")
+    except ValueError:
+        return value_str # Return original if parsing fails
+
+app.jinja_env.filters['formatmonthyear'] = format_month_year
 
 #Home Page
 @app.route("/", methods=["GET", "POST"])
@@ -104,13 +117,37 @@ def category_stats(category_id):
             else:
                 lifetime_stats['avg_hours_per_week'] = 0
 
+    is_empty_category = not log_entries
+
+    if is_empty_category:
+        current_dt = datetime.now()
+        current_year_month_str = current_dt.strftime("%Y-%m")
+        available_months = [current_year_month_str]
+
+        # For an empty category, we still want to show the current month's grid.
+        # The JS will render days from 1 to days_in_month.
+        # We don't need to pre-populate entries_by_month_day for an empty category,
+        # as the JS renderCalendar will correctly show default (grey) circles
+        # if logEntriesData[yearMonth][dayNum] is undefined or empty.
+        # What's important is that available_months has the current month.
+
+        # Reset lifetime_stats for an empty category to all zeros
+        lifetime_stats = {
+            'total_sessions': 0,
+            'total_minutes': 0,
+            'longest_session_minutes': 0,
+            'avg_hours_per_week': 0,
+            'total_hours_spent': 0
+        }
+
     session.close()
 
     return render_template('category_stats.html',
                            category=category,
-                           log_entries_data=entries_by_month_day, # Renamed for clarity
+                           log_entries_data=entries_by_month_day,
                            available_months=available_months,
-                           lifetime_stats=lifetime_stats)
+                           lifetime_stats=lifetime_stats,
+                           is_empty_category=is_empty_category) # Pass the flag
 
 #Logger Form
 @app.route('/log/<int:category_id>', methods=['GET', 'POST'])

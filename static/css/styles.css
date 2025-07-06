@@ -224,6 +224,183 @@ form textarea {
     outline: none;
 }
 
+/* Daily Log Display Section (Category Stats) */
+#daily-log-display {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #fff; /* White background to stand out */
+    border-radius: 10px; /* Consistent with stat-box */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Consistent shadow */
+}
+
+#daily-log-display h4 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.2rem; /* Slightly larger title for the section */
+    color: var(--black);
+    margin-top: 0;
+    margin-bottom: 1rem; /* Space below the title */
+}
+
+#daily-log-list {
+    list-style-type: none; /* Remove default bullets */
+    padding-left: 0; /* Remove default padding */
+    margin: 0;
+}
+
+.log-entry-card {
+    background-color: var(--linen); /* Slightly different background for cards inside the white box */
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem; /* Space between log entry cards */
+    border: 1px solid #e0e0e0; /* Subtle border for cards */
+}
+
+.log-entry-card p {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--black);
+    margin: 0.25rem 0; /* Space between paragraphs within a card (e.g. duration and notes) */
+    line-height: 1.5;
+}
+
+.log-entry-card p strong {
+    font-family: 'DM Sans', sans-serif; /* Bolder font for labels */
+    font-weight: 600;
+}
+
+.log-notes { /* Specific styling for notes if needed, e.g. slightly smaller or different color */
+    font-size: 0.9rem;
+    color: #555; /* Slightly muted color for notes */
+}
+
+/* Section Title for Stats Page (e.g., "Lifetime Statistics") */
+.section-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.4rem;
+    color: var(--black);
+    margin-top: 2rem; /* Space above this section title */
+    margin-bottom: 1rem; /* Space between title and its content (e.g., stats-grid) */
+}
+
+/* Wrapper for stats section if needed for spacing with title */
+.stats-section-container {
+    margin-bottom: 2rem; /* Overall bottom margin for the section */
+}
+
+
+/* Category Stats Page Styles */
+.month-selector-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: flex-end; /* Aligns selector to the right */
+}
+
+.month-selector {
+    font-family: 'Work Sans', sans-serif; /* Match other form elements */
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem; /* Consistent padding */
+    border-radius: 8px; /* Consistent border-radius */
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+}
+
+.calendar-wrapper {
+    margin-bottom: 1.5rem; /* Overall margin for the calendar section */
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-family: 'DM Sans', sans-serif; /* Heading font */
+    font-weight: 600;
+    font-size: 0.9rem; /* Slightly smaller */
+    color: var(--black);
+    margin-bottom: 0.5rem;
+    padding: 0 5px; /* Align with calendar day padding */
+}
+
+.weekdays div {
+    padding: 0.25rem 0; /* Vertical padding for weekday names */
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px; /* Gap between day cells */
+    padding: 5px; /* Padding around the grid of days */
+    background-color: #fff; /* Optional: background for the calendar area */
+    border-radius: 8px; /* Optional: rounded corners for the calendar block */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow */
+}
+
+.day {
+    /* width: 40px; height: 40px; -- Replaced by aspect-ratio and padding */
+    aspect-ratio: 1 / 1; /* Make cells square */
+    border-radius: 50%;
+    background-color: #e0e0e0; /* Default for empty/non-active days */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--black);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    line-height: 1; /* Ensure text is centered well */
+}
+
+.day.day-active {
+    background-color: var(--yellow); /* Use theme color */
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.day.day-active:hover {
+    background-color: var(--darkYellow);
+}
+
+.day.day-inactive {
+    background-color: transparent; /* Make them blend with calendar background */
+    visibility: hidden; /* Or keep visible with very low opacity if preferred for structure */
+    /* If making them visible for structure:
+    background-color: #f8f8f8;
+    color: #ccc;
+    */
+}
+
+/* Stats Grid - Styles from inline, slightly adjusted */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-box {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Consistent shadow */
+    padding: 1rem; /* Adjusted padding */
+    text-align: center;
+}
+
+.stat-box h4 {
+    margin: 0 0 0.5rem 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; /* Adjusted size */
+    color: #555;
+    font-weight: 600;
+}
+
+.stat-box .stat-value {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 1.8rem; /* Adjusted size */
+    font-weight: 700;
+    color: var(--black);
+}
+
 /* Emoji Picker Styles */
 .icon-picker-button {
     font-family: 'Work Sans', sans-serif;
@@ -283,7 +460,6 @@ form textarea {
     visibility: visible;
     opacity: 1;
     transform: translateY(0);
-
 }
 
 .emoji-item {
