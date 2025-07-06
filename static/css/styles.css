@@ -287,6 +287,113 @@ form textarea {
     margin-bottom: 2rem; /* Overall bottom margin for the section */
 }
 
+.category-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: center; /* Center buttons on the page */
+}
+
+.button.edit-action-btn,
+.button.delete-action-btn {
+    padding: 0.6rem 1rem;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    color: white; /* Default text color for buttons */
+}
+
+.button.edit-action-btn {
+    background-color: var(--yellow); /* Theme color for edit */
+}
+.button.edit-action-btn:hover {
+    background-color: var(--darkYellow);
+}
+
+.button.delete-action-btn {
+    background-color: #dc3545; /* A common red for delete actions */
+    color: white;
+}
+.button.delete-action-btn:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity for overlay */
+    justify-content: center; /* Center content horizontally (for flex display) */
+    align-items: center; /* Center content vertically (for flex display) */
+}
+
+.modal.modal-visible {
+    display: flex; /* Use flex to center content */
+}
+
+.modal-content {
+    background-color: var(--linen);
+    margin: auto; /* Handles centering for display:block, flex handles it for display:flex */
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width: 85%;
+    max-width: 380px; /* Slightly less than container max-width */
+    text-align: center;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.modal-content h2 {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--black);
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.modal-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.modal-content p strong { /* For the category name in the message */
+    font-weight: 600;
+    color: var(--black);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-around; /* Distribute buttons */
+    gap: 1rem; /* Space between buttons */
+}
+
+.modal-actions .button { /* General styling for buttons in modal */
+    flex-grow: 1; /* Make buttons take equal width */
+}
+
+.button.secondary-action-btn { /* For Cancel button */
+    background-color: #6c757d; /* Bootstrap secondary grey */
+    color: white;
+}
+.button.secondary-action-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Ensure delete button in modal also uses .button and .delete-action-btn classes */
+/* .delete-action-btn is already defined with red background */
 
 /* Category Stats Page Styles */
 .month-selector-container {

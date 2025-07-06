@@ -182,5 +182,43 @@ def logger_form(category_id):
     session.close()
     return render_template('logger_form.html', category=category, current_date=current_date_iso)
 
+@app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
+def edit_category(category_id):
+    session = SessionLocal()
+    category_to_edit = session.query(Category).filter(Category.id == category_id).first()
+
+    if not category_to_edit:
+        session.close()
+        return "Category not found", 404
+
+    if request.method == 'POST':
+        category_to_edit.name = request.form['name']
+        category_to_edit.icon = request.form['icon']
+        category_to_edit.description = request.form['description']
+        session.commit()
+        session.close()
+        return redirect(url_for('category_stats', category_id=category_to_edit.id))
+
+    # For GET request
+    session.close() # Close session if only rendering
+    return render_template('edit_category.html', category=category_to_edit)
+
+@app.route('/delete_category/<int:category_id>/confirm')
+def delete_category_confirm(category_id):
+    session = SessionLocal()
+    category_to_delete = session.query(Category).filter(Category.id == category_id).first()
+
+    if not category_to_delete:
+        session.close()
+        return "Category not found", 404
+
+    # Assuming cascade delete is set up for LogEntry items associated with this category.
+    # If not, LogEntry items would need to be deleted manually first.
+    session.delete(category_to_delete)
+    session.commit()
+    session.close()
+
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(debug=True)

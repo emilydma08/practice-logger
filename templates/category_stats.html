@@ -26,7 +26,12 @@
             {% endif %}
         </select>
     </div>
-    
+
+    <div class="category-actions">
+        <a href="{{ url_for('edit_category', category_id=category.id) }}" class="button edit-action-btn">Edit Category</a>
+        <button type="button" class="button delete-action-btn" id="initiate-delete-btn">Delete Category</button>
+    </div>
+
     <div class="calendar-wrapper">
         <div class="weekdays">
             <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div> <!-- Shorter day names -->
@@ -194,28 +199,65 @@
              // For now, we'll leave it as is, but could be a UI refinement.
         }
 
+        // More Menu Toggle JavaScript has been removed as the menu is no longer present.
 
-        // --- More Menu Toggle ---
-        function toggleMenu(event) {
-          event.stopPropagation(); // Prevent click from immediately closing menu
-          const menu = event.target.nextElementSibling;
-          const allMenus = document.querySelectorAll('.menu-options');
-          // Hide other menus
-          allMenus.forEach(m => {
-            if (m !== menu) m.classList.remove('show-menu');
-          });
-          // Toggle current menu
-          menu.classList.toggle('show-menu');
+        // Delete Category Modal Functionality
+        const deleteModal = document.getElementById('delete-confirm-modal');
+        const initiateDeleteBtn = document.getElementById('initiate-delete-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const categoryNameModalEl = document.getElementById('delete-category-name-modal');
+
+        const categoryNameForModal = "{{ category.name | e }}"; // Escape for security
+        const categoryIdForDelete = "{{ category.id }}";
+
+        if (initiateDeleteBtn) {
+            initiateDeleteBtn.addEventListener('click', () => {
+                if (categoryNameModalEl) {
+                    categoryNameModalEl.textContent = categoryNameForModal;
+                }
+                if (deleteModal) {
+                    deleteModal.classList.add('modal-visible');
+                }
+            });
         }
-    
-        document.addEventListener('click', function(e) {
-          const isMenuButton = e.target.classList.contains('more-menu');
-          const isInsideMenu = e.target.closest('.menu-options');
 
-          if (!isMenuButton && !isInsideMenu) {
-            document.querySelectorAll('.menu-options').forEach(menu => menu.classList.remove('show-menu'));
-          }
-        });
+        if (cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', () => {
+                if (deleteModal) {
+                    deleteModal.classList.remove('modal-visible');
+                }
+            });
+        }
+
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', () => {
+                // Construct URL using the categoryIdForDelete
+                window.location.href = `/delete_category/${categoryIdForDelete}/confirm`;
+            });
+        }
+
+        // Close modal if user clicks outside of modal-content (on the overlay)
+        if (deleteModal) {
+            deleteModal.addEventListener('click', function(event) {
+                if (event.target === deleteModal) { // Check if the click is on the overlay itself
+                    deleteModal.classList.remove('modal-visible');
+                }
+            });
+        }
+
       </script>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirm-modal" class="modal">
+        <div class="modal-content">
+            <h2>Confirm Deletion</h2>
+            <p>Are you sure you want to delete <strong id="delete-category-name-modal"></strong>? This will also delete all associated log entries.</p>
+            <div class="modal-actions">
+                <button type="button" id="cancel-delete-btn" class="button secondary-action-btn">Cancel</button>
+                <button type="button" id="confirm-delete-btn" class="button delete-action-btn">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

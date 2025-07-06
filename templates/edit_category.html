@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Category</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Edit Category</h1>
+            <a href="{{ url_for('category_stats', category_id=category.id) }}" class="close-btn">&times;</a>
+        </header>
+
+        <form action="{{ url_for('edit_category', category_id=category.id) }}" method="POST">
+            <div>
+                <label for="name">Category Name</label>
+                <input type="text" id="name" name="name" value="{{ category.name }}" placeholder="e.g. Piano, Math, Coding" required>
+            </div>
+
+            <div>
+                <label for="icon-display">Icon (Emoji)</label>
+                <div id="icon-display" class="icon-picker-button" tabindex="0">{{ category.icon if category.icon else '🎹' }}</div> <!-- Display current icon, fallback to default -->
+                <input type="hidden" id="icon" name="icon" value="{{ category.icon if category.icon else '🎹' }}" required> <!-- Hidden input with current icon, fallback to default -->
+                <div id="emoji-picker" class="emoji-picker-container">
+                    <!-- Emojis will be populated here by JavaScript -->
+                </div>
+            </div>
+
+            <div>
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" value="{{ category.description }}" placeholder="A brief description">
+            </div>
+
+            <button type="submit" class="form-button">Save Changes</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/emojiPicker.js') }}"></script>
+</body>
+</html>
