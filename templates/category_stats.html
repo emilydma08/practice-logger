@@ -4,114 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ category.name }} Stats</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> <!-- Assuming general styles are here -->
-    <style>
-        /* General Styling from original kept, can be moved to styles.css */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 1rem;
-            background-color: #f4f7f6;
-            color: #333;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #eee;
-            margin-bottom: 1.5rem;
-        }
-        .header h2 { margin: 0; font-size: 1.8rem; font-weight: 600; }
-        .left-header { display: flex; align-items: center; gap: 0.5rem; }
-        .month-selector {
-            font-size: 1rem; padding: 0.5rem; border-radius: 5px;
-            border: 1px solid #ccc; background-color: white; cursor: pointer;
-        }
-        .calendar {
-            display: grid; grid-template-columns: repeat(7, 1fr);
-            gap: 0.5rem; margin-bottom: 1rem; /* Reduced margin */
-        }
-        .day {
-            width: 40px; height: 40px; border-radius: 50%;
-            background-color: #e0e0e0; display: flex; align-items: center;
-            justify-content: center; font-size: 0.9rem; color: #333;
-            transition: background-color 0.2s ease;
-        }
-        .day.day-active { /* New class for active days */
-            background-color: orange;
-            color: white;
-            cursor: pointer;
-        }
-        .day.day-inactive { /* For days not part of the month */
-            background-color: #f0f0f0;
-            visibility: hidden; /* Or some other styling to show it's not part of month */
-        }
-        .weekdays {
-            display: grid; grid-template-columns: repeat(7, 1fr);
-            text-align: center; font-weight: 600; margin-bottom: 0.5rem; /* Reduced margin */
-        }
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive */
-            gap: 1rem; margin-bottom: 2rem;
-        }
-        .stat-box {
-            background-color: #fff; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 1.5rem; text-align: center; font-size: 1.2rem;
-        }
-        .stat-box h4 { margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #555; font-weight: 600; }
-        .stat-box .stat-value { font-size: 2rem; font-weight: 700; color: #333; }
-
-        #daily-log-display {
-            margin-top: 1.5rem; padding: 1rem; background-color: #fff;
-            border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        #daily-log-display h4 { margin-top: 0; }
-        #daily-log-list li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #eee;
-        }
-        #daily-log-list li:last-child { border-bottom: none; }
-        .more-menu-wrapper { position: relative; display: inline-block; margin-left: 0.5rem; }
-        .more-menu { cursor: pointer; font-size: 1.4rem; background: none; border: none; padding: 0.2rem; line-height: 1; }
-        .menu-options { display: none; position: absolute; top: 120%; right: 0; background-color: white; border: 1px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 5px; min-width: 100px; z-index: 1000; }
-        .menu-options div { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.95rem; }
-        .menu-options div:hover { background-color: #f0f0f0; }
-        .show-menu { display: block; }
-
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- Inline styles have been removed -->
 </head>
 <body>
+<div class="container">
+    <header class="header">
+        <h1>{{ category.name }} Stats</h1>
+        <a href="{{ url_for('index') }}" class="close-btn">&times;</a>
+    </header>
 
-    <div class="header">
-        <div class="left-header">
-            <h2>{{ category.name }} Stats</h2> <!-- Use category.name -->
-            <div class="more-menu-wrapper">
-                <button class="more-menu" onclick="toggleMenu(event)">⋮</button>
-                <div class="menu-options">
-                    <div>Edit Category</div> <!-- Placeholder -->
-                    <div>Delete Category</div> <!-- Placeholder -->
-                </div>
-            </div>
-        </div>
-    
+    <!-- Month selector will be placed here, outside the old custom header structure -->
+    <div class="month-selector-container">
         <select class="month-selector" id="month-selector">
             {% if available_months %}
-                {% for month_str in available_months %}
-                    <option value="{{ month_str }}">{{ month_str }}</option>
+                {% for month_val in available_months %}
+                    <option value="{{ month_val }}">{{ month_val | formatmonthyear }}</option>
                 {% endfor %}
             {% else %}
-                <option value="">No data</option>
+                <option value="">No data available</option>
             {% endif %}
         </select>
     </div>
     
-    <!-- Calendar Section -->
-    <div class="weekdays">
-        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-    </div>
-    <div class="calendar" id="calendar-grid">
-        <!-- Calendar days will be generated by JavaScript -->
+    <div class="calendar-wrapper">
+        <div class="weekdays">
+            <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div> <!-- Shorter day names -->
+        </div>
+        <div class="calendar" id="calendar-grid">
+            <!-- Calendar days will be generated by JavaScript -->
+        </div>
     </div>
 
     <!-- Daily Log Display Area (Initially Hidden) -->
@@ -121,9 +43,11 @@
     </div>
 
     <!-- Stats Section -->
-    <div class="stats-grid">
-        <div class="stat-box">
-            <h4>Total Sessions</h4>
+    <div class="stats-section-container"> <!-- Added a wrapper for heading + grid -->
+        <h3 class="section-title">Lifetime Statistics</h3>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h4>Total Sessions</h4>
             <div class="stat-value" id="total-sessions">{{ lifetime_stats.total_sessions }}</div>
         </div>
         <div class="stat-box">
@@ -140,11 +64,12 @@
         </div>
     </div>
 
-    <!-- Old Log Entries List REMOVED -->
+</div> <!-- End of .container -->
 
     <script>
         const logEntriesData = {{ log_entries_data | tojson }};
         const availableMonths = {{ available_months | tojson }};
+        const isEmptyCategory = {{ is_empty_category | tojson }}; // Pass the flag
         const calendarGrid = document.getElementById('calendar-grid');
         const monthSelector = document.getElementById('month-selector');
         const dailyLogDisplay = document.getElementById('daily-log-display');
@@ -155,17 +80,19 @@
             calendarGrid.innerHTML = ''; // Clear previous calendar
             dailyLogDisplay.style.display = 'none'; // Hide daily logs when month changes
 
-            if (!yearMonth || !logEntriesData[yearMonth]) {
-                // Handle case where there's no data for selected month or no month selected
-                // (e.g. if availableMonths is empty)
-                if (availableMonths && availableMonths.length > 0 && !yearMonth) {
-                    yearMonth = availableMonths[0]; // Default to first available if nothing selected
-                } else if (!logEntriesData[yearMonth]) {
-                     // If still no data for the month (e.g. "No data" option was selected or data structure is empty)
-                    calendarGrid.innerHTML = '<p>No log data for this period.</p>';
+            if (!yearMonth) { // If no specific month is passed (e.g. initial call for empty category)
+                if (availableMonths && availableMonths.length > 0) {
+                    yearMonth = availableMonths[0]; // Default to first available month
+                } else {
+                    // This case should ideally not be hit if backend always provides current month for empty
+                    calendarGrid.innerHTML = '<p>No data available for display.</p>';
                     return;
                 }
             }
+
+            // If it's an empty category, logEntriesData for the current month will be empty or undefined.
+            // The logic below will correctly render grey circles.
+            // No need for a specific "No log data for this period" message if we always show a grid.
 
             const [year, month] = yearMonth.split('-').map(Number);
             const firstDayOfMonth = new Date(year, month - 1, 1).getDay(); // 0 (Sun) - 6 (Sat)
@@ -198,26 +125,44 @@
         }
 
         function displayDailyLogs(dateStr) { // dateStr is "YYYY-MM-DD"
-            const [year, month, day] = dateStr.split('-');
-            const yearMonthKey = `${year}-${month}`;
-            const dayKey = parseInt(day);
+            const [year, monthNumStr, dayNumStr] = dateStr.split('-');
+            const yearMonthKey = `${year}-${monthNumStr}`;
+            const dayKey = parseInt(dayNumStr);
 
             const entriesForDay = logEntriesData[yearMonthKey] && logEntriesData[yearMonthKey][dayKey]
                                 ? logEntriesData[yearMonthKey][dayKey]
                                 : [];
 
-            selectedLogDateEl.textContent = dateStr;
+            // Format date for display: "Month Day, Year"
+            const displayDate = new Date(parseInt(year), parseInt(monthNumStr) - 1, parseInt(dayNumStr));
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            selectedLogDateEl.textContent = displayDate.toLocaleDateString('en-US', options);
+
             dailyLogListEl.innerHTML = ''; // Clear previous logs
 
             if (entriesForDay.length > 0) {
                 entriesForDay.forEach(entry => {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `<strong>Duration:</strong> ${entry.duration} min. <br>
-                                          <strong>Notes:</strong> ${entry.notes ? entry.notes : 'N/A'}`;
-                    dailyLogListEl.appendChild(listItem);
+                    const entryCard = document.createElement('div');
+                    entryCard.classList.add('log-entry-card');
+
+                    const durationEl = document.createElement('p');
+                    durationEl.innerHTML = `<strong>Duration:</strong> ${entry.duration} min.`;
+                    entryCard.appendChild(durationEl);
+
+                    if (entry.notes) {
+                        const notesEl = document.createElement('p');
+                        notesEl.classList.add('log-notes');
+                        notesEl.innerHTML = `<strong>Notes:</strong> ${entry.notes}`;
+                        entryCard.appendChild(notesEl);
+                    }
+                    dailyLogListEl.appendChild(entryCard);
                 });
             } else {
-                dailyLogListEl.innerHTML = '<li>No specific entries found for this day (this shouldn\'t happen if day was active).</li>';
+                // This case should ideally not be hit if the day was marked active
+                const noEntriesItem = document.createElement('div');
+                noEntriesItem.classList.add('log-entry-card');
+                noEntriesItem.textContent = 'No specific entries found for this day.';
+                dailyLogListEl.appendChild(noEntriesItem);
             }
             dailyLogDisplay.style.display = 'block';
         }
@@ -228,15 +173,27 @@
 
         // Initial render
         if (availableMonths && availableMonths.length > 0) {
-            monthSelector.value = availableMonths[0]; // Select first month by default
+            monthSelector.value = availableMonths[0]; // Select the first (and possibly only) month
             renderCalendar(availableMonths[0]);
         } else {
-            calendarGrid.innerHTML = '<p>No log entries for this category yet.</p>';
-            // Optionally disable month selector if no months
-            if(monthSelector.options.length === 1 && monthSelector.options[0].value === "") {
-                monthSelector.disabled = true;
-            }
+            // This block should ideally not be reached if backend always provides current month for empty categories
+            calendarGrid.innerHTML = '<p>Error: No month data provided.</p>';
+            if (monthSelector) monthSelector.disabled = true;
         }
+
+        // If it's an empty category, the month selector might have only one option (current month)
+        // and it might be "No data available" if the available_months logic in backend isn't perfect for empty.
+        // However, with the backend changes, available_months should always have at least the current month.
+        if (isEmptyCategory && monthSelector.options.length === 1 && monthSelector.options[0].text === "No data available") {
+             // This is a fallback, ideally the filter `formatmonthyear` should make it "Month YYYY"
+            monthSelector.options[0].text = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        }
+        if (isEmptyCategory && monthSelector.options.length === 1) {
+             // If only one month is available (current month for empty category), no need for it to be a selector.
+             // Could replace with static text, or just leave it as a disabled selector with one option.
+             // For now, we'll leave it as is, but could be a UI refinement.
+        }
+
 
         // --- More Menu Toggle ---
         function toggleMenu(event) {
