@@ -306,7 +306,10 @@ form textarea {
 }
 
 .calendar-wrapper {
-    margin-bottom: 1.5rem; /* Overall margin for the calendar section */
+    margin-bottom: 1rem; /* Overall margin for the calendar section */
+    border: 0.3px solid var(--black);
+    border-radius: 5px;
+    padding: 0.25rem 0.5rem;
 }
 
 .weekdays {
@@ -330,9 +333,7 @@ form textarea {
     grid-template-columns: repeat(7, 1fr);
     gap: 5px; /* Gap between day cells */
     padding: 5px; /* Padding around the grid of days */
-    background-color: #fff; /* Optional: background for the calendar area */
-    border-radius: 8px; /* Optional: rounded corners for the calendar block */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow */
+    background-color: var(--linen); /* Optional: background for the calendar area */
 }
 
 .day {
