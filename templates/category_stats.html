@@ -69,12 +69,13 @@
         </div>
     </div>
 
-</div> <!-- End of .container -->
+</div> 
 
     <script>
+    document.addEventListener('DOMContentLoaded', function() {
         const logEntriesData = {{ log_entries_data | tojson }};
         const availableMonths = {{ available_months | tojson }};
-        const isEmptyCategory = {{ is_empty_category | tojson }}; // Pass the flag
+        const isEmptyCategory = {{ is_empty_category | tojson }}; 
         const calendarGrid = document.getElementById('calendar-grid');
         const monthSelector = document.getElementById('month-selector');
         const dailyLogDisplay = document.getElementById('daily-log-display');
@@ -85,32 +86,25 @@
             calendarGrid.innerHTML = ''; // Clear previous calendar
             dailyLogDisplay.style.display = 'none'; // Hide daily logs when month changes
 
-            if (!yearMonth) { // If no specific month is passed (e.g. initial call for empty category)
+            if (!yearMonth) { 
                 if (availableMonths && availableMonths.length > 0) {
                     yearMonth = availableMonths[0]; // Default to first available month
                 } else {
-                    // This case should ideally not be hit if backend always provides current month for empty
                     calendarGrid.innerHTML = '<p>No data available for display.</p>';
                     return;
                 }
             }
 
-            // If it's an empty category, logEntriesData for the current month will be empty or undefined.
-            // The logic below will correctly render grey circles.
-            // No need for a specific "No log data for this period" message if we always show a grid.
-
             const [year, month] = yearMonth.split('-').map(Number);
-            const firstDayOfMonth = new Date(year, month - 1, 1).getDay(); // 0 (Sun) - 6 (Sat)
-            const daysInMonth = new Date(year, month, 0).getDate(); // Last day of prev month = days in current
+            const firstDayOfMonth = new Date(year, month - 1, 1).getDay(); 
+            const daysInMonth = new Date(year, month, 0).getDate(); 
 
-            // Add empty divs for days before the first day of the month
             for (let i = 0; i < firstDayOfMonth; i++) {
                 const emptyDayCell = document.createElement('div');
                 emptyDayCell.classList.add('day', 'day-inactive');
                 calendarGrid.appendChild(emptyDayCell);
             }
 
-            // Add day cells for the month
             for (let dayNum = 1; dayNum <= daysInMonth; dayNum++) {
                 const dayCell = document.createElement('div');
                 dayCell.classList.add('day');
@@ -129,7 +123,7 @@
             }
         }
 
-        function displayDailyLogs(dateStr) { // dateStr is "YYYY-MM-DD"
+        function displayDailyLogs(dateStr) { 
             const [year, monthNumStr, dayNumStr] = dateStr.split('-');
             const yearMonthKey = `${year}-${monthNumStr}`;
             const dayKey = parseInt(dayNumStr);
@@ -138,7 +132,6 @@
                                 ? logEntriesData[yearMonthKey][dayKey]
                                 : [];
 
-            // Format date for display: "Month Day, Year"
             const displayDate = new Date(parseInt(year), parseInt(monthNumStr) - 1, parseInt(dayNumStr));
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             selectedLogDateEl.textContent = displayDate.toLocaleDateString('en-US', options);
@@ -163,7 +156,6 @@
                     dailyLogListEl.appendChild(entryCard);
                 });
             } else {
-                // This case should ideally not be hit if the day was marked active
                 const noEntriesItem = document.createElement('div');
                 noEntriesItem.classList.add('log-entry-card');
                 noEntriesItem.textContent = 'No specific entries found for this day.';
@@ -186,20 +178,15 @@
             if (monthSelector) monthSelector.disabled = true;
         }
 
-        // If it's an empty category, the month selector might have only one option (current month)
-        // and it might be "No data available" if the available_months logic in backend isn't perfect for empty.
-        // However, with the backend changes, available_months should always have at least the current month.
+       
         if (isEmptyCategory && monthSelector.options.length === 1 && monthSelector.options[0].text === "No data available") {
-             // This is a fallback, ideally the filter `formatmonthyear` should make it "Month YYYY"
             monthSelector.options[0].text = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         }
         if (isEmptyCategory && monthSelector.options.length === 1) {
-             // If only one month is available (current month for empty category), no need for it to be a selector.
-             // Could replace with static text, or just leave it as a disabled selector with one option.
-             // For now, we'll leave it as is, but could be a UI refinement.
+             
         }
 
-        // More Menu Toggle JavaScript has been removed as the menu is no longer present.
+        
 
         // Delete Category Modal Functionality
         const deleteModal = document.getElementById('delete-confirm-modal');
@@ -207,12 +194,12 @@
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
         const categoryNameModalEl = document.getElementById('delete-category-name-modal');
-
-        const categoryNameForModal = "{{ category.name | tojson }}"; // Escape for security
-        const categoryIdForDelete = "{{ category.id | tojson }}";
+        const categoryNameForModal = {{ category.name | tojson }};
+        const categoryIdForDelete = {{ category.id | tojson }};
 
         if (initiateDeleteBtn) {
             initiateDeleteBtn.addEventListener('click', () => {
+                console.log("Delete button clicked"); // should work now
                 if (categoryNameModalEl) {
                     categoryNameModalEl.textContent = categoryNameForModal;
                 }
@@ -232,21 +219,20 @@
 
         if (confirmDeleteBtn) {
             confirmDeleteBtn.addEventListener('click', () => {
-                // Construct URL using the categoryIdForDelete
                 window.location.href = `/delete_category/${categoryIdForDelete}/confirm`;
             });
         }
 
-        // Close modal if user clicks outside of modal-content (on the overlay)
         if (deleteModal) {
             deleteModal.addEventListener('click', function(event) {
-                if (event.target === deleteModal) { // Check if the click is on the overlay itself
+                if (event.target === deleteModal) {
                     deleteModal.classList.remove('modal-visible');
                 }
             });
         }
-
-      </script>
+    });
+       
+    </script>
 
     <!-- Delete Confirmation Modal -->
     <div id="delete-confirm-modal" class="modal">

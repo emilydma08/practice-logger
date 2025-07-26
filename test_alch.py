@@ -27,24 +27,5 @@ engine = create_engine('sqlite:///pl.db', echo=True)
 
 
 SessionLocal = sessionmaker(bind=engine)
-# session = Session()
 
-# new_category = Category(
-#     name="Art",
-#     description="Creative and visual expressions",
-#     icon="🎨"
-# )
-
-# session.add(new_category)
-# session.commit()
-
-# categories = session.query(Category).all()
-# for c in categories:
-#     print(c.name, c.description, c.icon)
-
-
-# session.close()
-
-# Create all tables in the engine. This is equivalent to "Create Table"
-# statements in raw SQL.
 Base.metadata.create_all(engine)
