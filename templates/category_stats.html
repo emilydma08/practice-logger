@@ -208,8 +208,8 @@
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
         const categoryNameModalEl = document.getElementById('delete-category-name-modal');
 
-        const categoryNameForModal = "{{ category.name | e }}"; // Escape for security
-        const categoryIdForDelete = "{{ category.id }}";
+        const categoryNameForModal = "{{ category.name | tojson }}"; // Escape for security
+        const categoryIdForDelete = "{{ category.id | tojson }}";
 
         if (initiateDeleteBtn) {
             initiateDeleteBtn.addEventListener('click', () => {

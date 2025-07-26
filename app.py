@@ -195,9 +195,17 @@ def edit_category(category_id):
         category_to_edit.name = request.form['name']
         category_to_edit.icon = request.form['icon']
         category_to_edit.description = request.form['description']
-        session.commit()
-        session.close()
-        return redirect(url_for('category_stats', category_id=category_to_edit.id))
+        cat_id = category_to_edit.id
+        try:
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            print(f"Error committing changes: {e}") 
+            raise
+        finally:
+            session.close()
+        
+        return redirect(url_for('category_stats', category_id=cat_id))
 
     # For GET request
     session.close() # Close session if only rendering
