@@ -201,50 +201,74 @@
 
         // More Menu Toggle JavaScript has been removed as the menu is no longer present.
 
-        // Delete Category Modal Functionality
-        const deleteModal = document.getElementById('delete-confirm-modal');
-        const initiateDeleteBtn = document.getElementById('initiate-delete-btn');
-        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
-        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-        const categoryNameModalEl = document.getElementById('delete-category-name-modal');
+        // Delete Category Modal Functionality - wrapped in DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, setting up delete functionality');
+            
+            const deleteModal = document.getElementById('delete-confirm-modal');
+            const initiateDeleteBtn = document.getElementById('initiate-delete-btn');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            const categoryNameModalEl = document.getElementById('delete-category-name-modal');
 
-        const categoryNameForModal = {{ category.name | tojson }};
-        const categoryIdForDelete = {{ category.id | tojson }};
-
-        if (initiateDeleteBtn) {
-            initiateDeleteBtn.addEventListener('click', () => {
-                if (categoryNameModalEl) {
-                    categoryNameModalEl.textContent = categoryNameForModal;
-                }
-                if (deleteModal) {
-                    deleteModal.classList.add('modal-visible');
-                }
+            console.log('Elements found:', {
+                deleteModal: !!deleteModal,
+                initiateDeleteBtn: !!initiateDeleteBtn,
+                cancelDeleteBtn: !!cancelDeleteBtn,
+                confirmDeleteBtn: !!confirmDeleteBtn,
+                categoryNameModalEl: !!categoryNameModalEl
             });
-        }
 
-        if (cancelDeleteBtn) {
-            cancelDeleteBtn.addEventListener('click', () => {
-                if (deleteModal) {
-                    deleteModal.classList.remove('modal-visible');
-                }
-            });
-        }
+            const categoryNameForModal = {{ category.name | tojson }};
+            const categoryIdForDelete = {{ category.id | tojson }};
 
-        if (confirmDeleteBtn) {
-            confirmDeleteBtn.addEventListener('click', () => {
-                // Construct URL using the categoryIdForDelete
-                window.location.href = `/delete_category/${categoryIdForDelete}/confirm`;
-            });
-        }
+            console.log('Category data:', { categoryNameForModal, categoryIdForDelete });
 
-        // Close modal if user clicks outside of modal-content (on the overlay)
-        if (deleteModal) {
-            deleteModal.addEventListener('click', function(event) {
-                if (event.target === deleteModal) { // Check if the click is on the overlay itself
-                    deleteModal.classList.remove('modal-visible');
-                }
-            });
-        }
+            if (initiateDeleteBtn) {
+                console.log('Adding click listener to delete button');
+                initiateDeleteBtn.addEventListener('click', (e) => {
+                    console.log('Delete button clicked!', e);
+                    if (categoryNameModalEl) {
+                        categoryNameModalEl.textContent = categoryNameForModal;
+                    }
+                    if (deleteModal) {
+                        console.log('Showing modal');
+                        deleteModal.classList.add('modal-visible');
+                    } else {
+                        console.error('Modal element not found!');
+                    }
+                });
+            } else {
+                console.error('Delete button not found!');
+            }
+
+            if (cancelDeleteBtn) {
+                cancelDeleteBtn.addEventListener('click', () => {
+                    console.log('Cancel button clicked');
+                    if (deleteModal) {
+                        deleteModal.classList.remove('modal-visible');
+                    }
+                });
+            }
+
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', () => {
+                    console.log('Confirm delete clicked, redirecting...');
+                    // Construct URL using the categoryIdForDelete
+                    window.location.href = `/delete_category/${categoryIdForDelete}/confirm`;
+                });
+            }
+
+            // Close modal if user clicks outside of modal-content (on the overlay)
+            if (deleteModal) {
+                deleteModal.addEventListener('click', function(event) {
+                    if (event.target === deleteModal) { // Check if the click is on the overlay itself
+                        console.log('Modal overlay clicked, closing modal');
+                        deleteModal.classList.remove('modal-visible');
+                    }
+                });
+            }
+        });
 
       </script>
 
