@@ -21,35 +21,51 @@ def format_month_year(value_str):
 
 app.jinja_env.filters['formatmonthyear'] = format_month_year
 
-#Home Page
-@app.route("/", methods=["GET", "POST"])
-def index():
-    session = SessionLocal()
+# Login Page
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/login", methods=["POST"])
+def login():
+    username = request.form.get("username").strip().lower()
+    if not username.isalnum():
+        return "Invalid username", 400
+    return redirect(url_for("user_dashboard", username=username))
+
+
+#Dashboard Page
+@app.route("/<username>/", methods=["GET"])
+def user_dashboard(username):
+    session = SessionLocal(username)  
     categories = session.query(Category).all()
     session.close()
-    return render_template('index.html', categories=categories)
+    return render_template('dashboard.html', categories=categories, username=username)
+
+
 
 #Create Category Form
-@app.route('/create-category', methods=['GET', 'POST'])
-def create_category():
+@app.route('/<username>/create-category', methods=['GET', 'POST'])
+def create_category(username):
     if request.method == 'POST':
         name = request.form['name']
         icon = request.form['icon']
         description = request.form['description']
 
-        session = SessionLocal()
+        session = SessionLocal(username)  # 🔧
         new_cat = Category(name=name, description=description, icon=icon)
         session.add(new_cat)
         session.commit()
         session.close()
-        return redirect(url_for('index'))
+        return redirect(url_for('user_dashboard', username=username))  # 🔧
 
-    return render_template('create_category.html')
+    return render_template('create_category.html', username=username)
+
 
 #Ind. Category Stats
-@app.route('/category_stats/<int:category_id>')
-def category_stats(category_id):
-    session = SessionLocal()
+@app.route('/<username>/category_stats/<int:category_id>')
+def category_stats(username, category_id):
+    session = SessionLocal(username)  # 🔧
     category = session.query(Category).filter(Category.id == category_id).first()
 
     if not category:
@@ -70,11 +86,9 @@ def category_stats(category_id):
     }
 
     if log_entries:
-        # Process entries for month/day grouping and available_months
         min_date = log_entries[0].date
         max_date = log_entries[-1].date
 
-        current_month_year = ""
         for entry in log_entries:
             month_year_str = entry.date.strftime("%Y-%m")
             if month_year_str not in available_months:
@@ -85,60 +99,28 @@ def category_stats(category_id):
                 'date': entry.date.isoformat(),
                 'duration': entry.duration,
                 'notes': entry.notes
-            }) # Storing as dicts for easier JSON serialization later
+            })
 
         available_months.sort()
-
-        # Calculate Lifetime Statistics
         lifetime_stats['total_sessions'] = len(log_entries)
 
-        total_duration_query = session.query(func.sum(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
-        lifetime_stats['total_minutes'] = total_duration_query if total_duration_query else 0
+        total_duration = session.query(func.sum(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
+        lifetime_stats['total_minutes'] = total_duration if total_duration else 0
         lifetime_stats['total_hours_spent'] = math.ceil(lifetime_stats['total_minutes'] / 60)
 
-        longest_session_query = session.query(func.max(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
-        lifetime_stats['longest_session_minutes'] = longest_session_query if longest_session_query else 0
+        longest_session = session.query(func.max(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
+        lifetime_stats['longest_session_minutes'] = longest_session if longest_session else 0
 
-        if min_date and max_date:
-            # Calculate total weeks for avg_hours_per_week
-            # If only one entry, consider it as one week of activity for averaging.
-            if min_date == max_date:
-                 # If all entries are on the same day, consider it as 1 day activity in 1 week.
-                total_days_span = 1
-            else:
-                total_days_span = (max_date - min_date).days + 1
+        total_days_span = max(1, (max_date - min_date).days + 1)
+        total_weeks = max(1, math.ceil(total_days_span / 7))
 
-            # Consider a minimum of 1 week even if the span is less, to avoid overly large avg for short periods.
-            total_weeks = max(1, math.ceil(total_days_span / 7))
+        if lifetime_stats['total_minutes'] > 0:
+            total_hours = lifetime_stats['total_minutes'] / 60
+            lifetime_stats['avg_hours_per_week'] = round(total_hours / total_weeks, 1)
 
-            if lifetime_stats['total_minutes'] > 0 and total_weeks > 0:
-                total_hours = lifetime_stats['total_minutes'] / 60
-                lifetime_stats['avg_hours_per_week'] = round(total_hours / total_weeks, 1)
-            else:
-                lifetime_stats['avg_hours_per_week'] = 0
-
-    is_empty_category = not log_entries
-
-    if is_empty_category:
-        current_dt = datetime.now()
-        current_year_month_str = current_dt.strftime("%Y-%m")
+    else:
+        current_year_month_str = datetime.now().strftime("%Y-%m")
         available_months = [current_year_month_str]
-
-        # For an empty category, we still want to show the current month's grid.
-        # The JS will render days from 1 to days_in_month.
-        # We don't need to pre-populate entries_by_month_day for an empty category,
-        # as the JS renderCalendar will correctly show default (grey) circles
-        # if logEntriesData[yearMonth][dayNum] is undefined or empty.
-        # What's important is that available_months has the current month.
-
-        # Reset lifetime_stats for an empty category to all zeros
-        lifetime_stats = {
-            'total_sessions': 0,
-            'total_minutes': 0,
-            'longest_session_minutes': 0,
-            'avg_hours_per_week': 0,
-            'total_hours_spent': 0
-        }
 
     session.close()
 
@@ -147,12 +129,14 @@ def category_stats(category_id):
                            log_entries_data=entries_by_month_day,
                            available_months=available_months,
                            lifetime_stats=lifetime_stats,
-                           is_empty_category=is_empty_category) # Pass the flag
+                           is_empty_category=(not log_entries),
+                           username=username)  # 🔧
+
 
 #Logger Form
-@app.route('/log/<int:category_id>', methods=['GET', 'POST'])
-def logger_form(category_id):
-    session = SessionLocal()
+@app.route('/<username>/log/<int:category_id>', methods=['GET', 'POST'])
+def logger_form(username, category_id):
+    session = SessionLocal(username)  # 🔧
     category = session.query(Category).filter(Category.id == category_id).first()
 
     if not category:
@@ -176,15 +160,15 @@ def logger_form(category_id):
         session.add(new_log_entry)
         session.commit()
         session.close()
-        return redirect(url_for('category_stats', category_id=category_id))
+        return redirect(url_for('category_stats', username=username, category_id=category_id))  # 🔧
 
     current_date_iso = date.today().isoformat()
     session.close()
-    return render_template('logger_form.html', category=category, current_date=current_date_iso)
+    return render_template('logger_form.html', category=category, current_date=current_date_iso, username=username)
 
-@app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
-def edit_category(category_id):
-    session = SessionLocal()
+@app.route('/<username>/edit_category/<int:category_id>', methods=['GET', 'POST'])
+def edit_category(username, category_id):
+    session = SessionLocal(username)  # 🔧
     category_to_edit = session.query(Category).filter(Category.id == category_id).first()
 
     if not category_to_edit:
@@ -195,38 +179,36 @@ def edit_category(category_id):
         category_to_edit.name = request.form['name']
         category_to_edit.icon = request.form['icon']
         category_to_edit.description = request.form['description']
-        cat_id = category_to_edit.id
         try:
             session.commit()
         except Exception as e:
             session.rollback()
-            print(f"Error committing changes: {e}") 
+            print(f"Error committing changes: {e}")
             raise
         finally:
             session.close()
-        
-        return redirect(url_for('category_stats', category_id=cat_id))
 
-    # For GET request
-    session.close() # Close session if only rendering
-    return render_template('edit_category.html', category=category_to_edit)
+        return redirect(url_for('category_stats', username=username, category_id=category_id))  # 🔧
 
-@app.route('/delete_category/<int:category_id>/confirm')
-def delete_category_confirm(category_id):
-    session = SessionLocal()
+    session.close()
+    return render_template('edit_category.html', category=category_to_edit, username=username)
+
+
+@app.route('/<username>/delete_category/<int:category_id>/confirm')
+def delete_category_confirm(username, category_id):
+    session = SessionLocal(username)  # 🔧
     category_to_delete = session.query(Category).filter(Category.id == category_id).first()
 
     if not category_to_delete:
         session.close()
         return "Category not found", 404
 
-    # Assuming cascade delete is set up for LogEntry items associated with this category.
-    # If not, LogEntry items would need to be deleted manually first.
     session.delete(category_to_delete)
     session.commit()
     session.close()
 
-    return redirect(url_for('index'))
+    return redirect(url_for('user_dashboard', username=username))  # 🔧
+
 
 if __name__ == '__main__':
     app.run(debug=True)

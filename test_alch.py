@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+import os
 
 Base = declarative_base()
 
@@ -23,9 +24,13 @@ class LogEntry(Base):
 
     category = relationship("Category", back_populates="log_entries")
 
-engine = create_engine('sqlite:///pl.db', echo=True)
+# Create per-user engine + session
+def get_engine_for_user(username):
+    os.makedirs("user_data", exist_ok=True)
+    db_path = f"user_data/{username}.db"
+    return create_engine(f"sqlite:///{db_path}", echo=True, connect_args={"check_same_thread": False})
 
-
-SessionLocal = sessionmaker(bind=engine)
-
-Base.metadata.create_all(engine)
+def SessionLocal(username):
+    engine = get_engine_for_user(username)
+    Base.metadata.create_all(engine)  # Ensure tables exist
+    return sessionmaker(bind=engine)()

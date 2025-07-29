@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Categories</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Header with plus button -->
+        <header class="header">
+            <h1>My Categories</h1>
+            <a href="{{ url_for('create_category', username=username) }}" class="cat-button">
+                <button class="add-category-btn">+</button>
+            </a>
+        </header>
+
+        <!-- Categories list -->
+        <div class="categories-list">
+            {% for category in categories %}
+                    <div class="category-card">
+                        <a href="{{ url_for('category_stats', category_id=category.id) }}" class="category-link">
+                            <div class="category-icon">{{ category.icon }}</div>
+                            <div class="category-details">
+                                <h3>{{ category.name }}</h3>
+                                <p>{{ category.description }}</p>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('logger_form', category_id=category.id) }}">
+                            <button class="log-btn">Log</button>
+                        </a>                    
+                    </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+
+<!-- <html>
+    <head><title>Home</title></head>
+    <body>
+        <h1>Tennis Log</h1>
+        <p>Please input your practice log here:</p>
+        <form action="/log" method="post">
+            <label for="date">Date:</label>
+            <input type="datetime-local" id="date" name="date"><br><br>
+    
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title"><br><br>
+    
+            <label for="rate">Rate:</label>
+            <input type="text" id="rate" name="rate"><br><br>
+    
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+
+</html> -->
