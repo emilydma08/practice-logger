@@ -8,6 +8,7 @@ import math
 from datetime import datetime
 from functools import wraps
 from dotenv import load_dotenv
+import os
 
 # Load environment variables from .env file
 load_dotenv()
@@ -16,7 +17,7 @@ load_dotenv()
 init_db()
 
 app = Flask(__name__)
-app.secret_key = 'your_very_secret_key'  # Change this to a random secret key
+app.secret_key = os.getenv('SECRET_KEY')  # Change this to a random secret key
 
 # User credentials
 USERS = {
