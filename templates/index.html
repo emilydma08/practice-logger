@@ -7,10 +7,17 @@
 </head>
 <body>
     <h1>Welcome to the Practice Logger</h1>
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
     <form action="/login" method="POST">
-        <label for="username">Enter your name:</label>
+        <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
-        <button type="submit">Enter</button>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
   </form>
 </body>
 </html>

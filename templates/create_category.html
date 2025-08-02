@@ -13,7 +13,7 @@
             <a href="{{ url_for('dashboard') }}" class="close-btn">&times;</a>
         </header>
 
-        <form action="{{ url_for('create_category', username=username) }}" method="POST">
+        <form action="{{ url_for('create_category') }}" method="POST">
             <div>
                 <label for="name">Category Name</label>
                 <input type="text" id="name" name="name" placeholder="e.g. Piano, Math, Coding" required>
