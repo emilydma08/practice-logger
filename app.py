@@ -1,12 +1,19 @@
-from flask import Flask, jsonify, session # Added jsonify for potential future use, though not in current plan step for app.py
+from flask import Flask, jsonify, session
 from flask import render_template, request, redirect, url_for
 from datetime import date, timedelta
-from database import Category, SessionLocal, LogEntry
-from sqlalchemy import func # For database functions like sum, max, etc.
+from database import Category, SessionLocal, LogEntry, init_db
+from sqlalchemy import func
 from collections import defaultdict
-import math # For rounding hours
-from datetime import datetime # For parsing month string
+import math
+from datetime import datetime
 from functools import wraps
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Initialize the database
+init_db()
 
 app = Flask(__name__)
 app.secret_key = 'your_very_secret_key'  # Change this to a random secret key
@@ -69,8 +76,8 @@ def login_required(f):
 @login_required
 def dashboard():
     username = session['username']
-    db_session = SessionLocal(username)
-    categories = db_session.query(Category).all()
+    db_session = SessionLocal()
+    categories = db_session.query(Category).filter_by(username=username).all()
     db_session.close()
     return render_template('dashboard.html', categories=categories)
 
@@ -84,10 +91,10 @@ def create_category():
         name = request.form['name']
         icon = request.form['icon']
         description = request.form['description']
-
         username = session['username']
-        db_session = SessionLocal(username)
-        new_cat = Category(name=name, description=description, icon=icon)
+
+        db_session = SessionLocal()
+        new_cat = Category(name=name, description=description, icon=icon, username=username)
         db_session.add(new_cat)
         db_session.commit()
         db_session.close()
@@ -101,14 +108,14 @@ def create_category():
 @login_required
 def category_stats(category_id):
     username = session['username']
-    db_session = SessionLocal(username)
-    category = db_session.query(Category).filter(Category.id == category_id).first()
+    db_session = SessionLocal()
+    category = db_session.query(Category).filter_by(id=category_id, username=username).first()
 
     if not category:
         db_session.close()
         return "Category not found", 404
 
-    log_entries = db_session.query(LogEntry).filter(LogEntry.category_id == category_id).order_by(LogEntry.date).all()
+    log_entries = db_session.query(LogEntry).filter_by(category_id=category_id, username=username).order_by(LogEntry.date).all()
 
     available_months = []
     entries_by_month_day = defaultdict(lambda: defaultdict(list))
@@ -140,11 +147,11 @@ def category_stats(category_id):
         available_months.sort()
         lifetime_stats['total_sessions'] = len(log_entries)
 
-        total_duration = db_session.query(func.sum(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
+        total_duration = db_session.query(func.sum(LogEntry.duration)).filter_by(category_id=category_id, username=username).scalar()
         lifetime_stats['total_minutes'] = total_duration if total_duration else 0
         lifetime_stats['total_hours_spent'] = math.ceil(lifetime_stats['total_minutes'] / 60)
 
-        longest_session = db_session.query(func.max(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
+        longest_session = db_session.query(func.max(LogEntry.duration)).filter_by(category_id=category_id, username=username).scalar()
         lifetime_stats['longest_session_minutes'] = longest_session if longest_session else 0
 
         total_days_span = max(1, (max_date - min_date).days + 1)
@@ -173,8 +180,8 @@ def category_stats(category_id):
 @login_required
 def logger_form(category_id):
     username = session['username']
-    db_session = SessionLocal(username)
-    category = db_session.query(Category).filter(Category.id == category_id).first()
+    db_session = SessionLocal()
+    category = db_session.query(Category).filter_by(id=category_id, username=username).first()
 
     if not category:
         db_session.close()
@@ -192,7 +199,8 @@ def logger_form(category_id):
             category_id=category.id,
             date=entry_date,
             duration=duration_int,
-            notes=notes
+            notes=notes,
+            username=username
         )
         db_session.add(new_log_entry)
         db_session.commit()
@@ -207,8 +215,8 @@ def logger_form(category_id):
 @login_required
 def edit_category(category_id):
     username = session['username']
-    db_session = SessionLocal(username)
-    category_to_edit = db_session.query(Category).filter(Category.id == category_id).first()
+    db_session = SessionLocal()
+    category_to_edit = db_session.query(Category).filter_by(id=category_id, username=username).first()
 
     if not category_to_edit:
         db_session.close()
@@ -237,8 +245,8 @@ def edit_category(category_id):
 @login_required
 def delete_category_confirm(category_id):
     username = session['username']
-    db_session = SessionLocal(username)
-    category_to_delete = db_session.query(Category).filter(Category.id == category_id).first()
+    db_session = SessionLocal()
+    category_to_delete = db_session.query(Category).filter_by(id=category_id, username=username).first()
 
     if not category_to_delete:
         db_session.close()

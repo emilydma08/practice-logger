@@ -1,7 +1,14 @@
 from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+engine = create_engine(DATABASE_URL, echo=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 class Category(Base):
@@ -11,6 +18,7 @@ class Category(Base):
     name = Column(String)
     description = Column(String)
     icon = Column(String)
+    username = Column(String, nullable=False)  # Add username to associate with a user
     log_entries = relationship("LogEntry", back_populates="category", cascade="all, delete-orphan", passive_deletes=True)
 
 class LogEntry(Base):
@@ -21,16 +29,10 @@ class LogEntry(Base):
     date = Column(Date)
     duration = Column(Integer)  # Duration in minutes
     notes = Column(String, nullable=True)
+    username = Column(String, nullable=False)  # Add username to associate with a user
 
     category = relationship("Category", back_populates="log_entries")
 
-# Create per-user engine + session
-def get_engine_for_user(username):
-    os.makedirs("user_data", exist_ok=True)
-    db_path = f"user_data/{username}.db"
-    return create_engine(f"sqlite:///{db_path}", echo=True, connect_args={"check_same_thread": False})
-
-def SessionLocal(username):
-    engine = get_engine_for_user(username)
-    Base.metadata.create_all(engine)  # Ensure tables exist
-    return sessionmaker(bind=engine)()
+def init_db():
+    # Create all tables in the database
+    Base.metadata.create_all(bind=engine)
