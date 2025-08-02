@@ -21,18 +21,20 @@
         <!-- Categories list -->
         <div class="categories-list">
             {% for category in categories %}
-                    <div class="category-card">
-                        <a href="{{ url_for('category_stats', category_id=category.id) }}" class="category-link">
-                            <div class="category-icon">{{ category.icon }}</div>
-                            <div class="category-details">
-                                <h3>{{ category.name }}</h3>
-                                <p>{{ category.description }}</p>
-                            </div>
-                        </a>
-                        <a href="{{ url_for('logger_form', category_id=category.id) }}">
-                            <button class="log-btn">Log</button>
-                        </a>                    
-                    </div>
+                <div class="category-card">
+                    <a href="{{ url_for('category_stats', category_id=category.id) }}" class="category-link">
+                        <div class="category-icon">{{ category.icon }}</div>
+                        <div class="category-details">
+                            <h3>{{ category.name }}</h3>
+                            <p>{{ category.description }}</p>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('logger_form', category_id=category.id) }}">
+                        <button class="log-btn">Log</button>
+                    </a>                    
+                </div>
+            {% else %}
+                <p class="no-categories-text">No categories created yet.</p>
             {% endfor %}
         </div>
 

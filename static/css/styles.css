@@ -44,6 +44,11 @@ body {
     text-decoration: none;
 }
 
+.categories-list p{
+    font-family: 'DM Sans';
+    margin-top: 1vh;
+}
+
 .add-category-btn {
     background-color: var(--yellow);
     color: white;
@@ -157,6 +162,7 @@ form label {
 form input[type="text"],
 form input[type="date"],
 form input[type="number"],
+form input[type="password"],
 form textarea {
     font-family: 'Work Sans', sans-serif;
     font-size: 1rem;
