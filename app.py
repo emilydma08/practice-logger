@@ -1,13 +1,23 @@
-from flask import Flask, jsonify # Added jsonify for potential future use, though not in current plan step for app.py
+from flask import Flask, jsonify, session # Added jsonify for potential future use, though not in current plan step for app.py
 from flask import render_template, request, redirect, url_for
 from datetime import date, timedelta
-from test_alch import Category, SessionLocal, LogEntry
+from database import Category, SessionLocal, LogEntry
 from sqlalchemy import func # For database functions like sum, max, etc.
 from collections import defaultdict
 import math # For rounding hours
 from datetime import datetime # For parsing month string
+from functools import wraps
 
 app = Flask(__name__)
+app.secret_key = 'your_very_secret_key'  # Change this to a random secret key
+
+# User credentials
+USERS = {
+    "emily": "password123",
+    "andrew": "andrewpass",
+    "alex": "alexpass",
+    "sherri": "sherripass"
+}
 
 # Custom Jinja filter to format 'YYYY-MM' to 'Month YYYY'
 def format_month_year(value_str):
@@ -24,55 +34,81 @@ app.jinja_env.filters['formatmonthyear'] = format_month_year
 # Login Page
 @app.route("/")
 def home():
+    if 'username' in session:
+        return redirect(url_for('dashboard'))
     return render_template("index.html")
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    username = request.form.get("username").strip().lower()
-    if not username.isalnum():
-        return "Invalid username", 400
-    return redirect(url_for("user_dashboard", username=username))
+    if request.method == "POST":
+        username = request.form.get("username").strip().lower()
+        password = request.form.get("password")
+        if username in USERS and USERS[username] == password:
+            session['username'] = username
+            return redirect(url_for("dashboard"))
+        else:
+            return render_template("index.html", error="Invalid username or password")
+    return render_template("index.html")
+
+@app.route("/logout")
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('home'))
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 #Dashboard Page
-@app.route("/<username>/", methods=["GET"])
-def user_dashboard(username):
-    session = SessionLocal(username)  
-    categories = session.query(Category).all()
-    session.close()
-    return render_template('dashboard.html', categories=categories, username=username)
+@app.route("/dashboard", methods=["GET"])
+@login_required
+def dashboard():
+    username = session['username']
+    db_session = SessionLocal(username)
+    categories = db_session.query(Category).all()
+    db_session.close()
+    return render_template('dashboard.html', categories=categories)
 
 
 
 #Create Category Form
-@app.route('/<username>/create-category', methods=['GET', 'POST'])
-def create_category(username):
+@app.route('/create-category', methods=['GET', 'POST'])
+@login_required
+def create_category():
     if request.method == 'POST':
         name = request.form['name']
         icon = request.form['icon']
         description = request.form['description']
 
-        session = SessionLocal(username)  # 🔧
+        username = session['username']
+        db_session = SessionLocal(username)
         new_cat = Category(name=name, description=description, icon=icon)
-        session.add(new_cat)
-        session.commit()
-        session.close()
-        return redirect(url_for('user_dashboard', username=username))  # 🔧
+        db_session.add(new_cat)
+        db_session.commit()
+        db_session.close()
+        return redirect(url_for('dashboard'))
 
-    return render_template('create_category.html', username=username)
+    return render_template('create_category.html')
 
 
 #Ind. Category Stats
-@app.route('/<username>/category_stats/<int:category_id>')
-def category_stats(username, category_id):
-    session = SessionLocal(username)  # 🔧
-    category = session.query(Category).filter(Category.id == category_id).first()
+@app.route('/category_stats/<int:category_id>')
+@login_required
+def category_stats(category_id):
+    username = session['username']
+    db_session = SessionLocal(username)
+    category = db_session.query(Category).filter(Category.id == category_id).first()
 
     if not category:
-        session.close()
+        db_session.close()
         return "Category not found", 404
 
-    log_entries = session.query(LogEntry).filter(LogEntry.category_id == category_id).order_by(LogEntry.date).all()
+    log_entries = db_session.query(LogEntry).filter(LogEntry.category_id == category_id).order_by(LogEntry.date).all()
 
     available_months = []
     entries_by_month_day = defaultdict(lambda: defaultdict(list))
@@ -104,11 +140,11 @@ def category_stats(username, category_id):
         available_months.sort()
         lifetime_stats['total_sessions'] = len(log_entries)
 
-        total_duration = session.query(func.sum(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
+        total_duration = db_session.query(func.sum(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
         lifetime_stats['total_minutes'] = total_duration if total_duration else 0
         lifetime_stats['total_hours_spent'] = math.ceil(lifetime_stats['total_minutes'] / 60)
 
-        longest_session = session.query(func.max(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
+        longest_session = db_session.query(func.max(LogEntry.duration)).filter(LogEntry.category_id == category_id).scalar()
         lifetime_stats['longest_session_minutes'] = longest_session if longest_session else 0
 
         total_days_span = max(1, (max_date - min_date).days + 1)
@@ -122,25 +158,26 @@ def category_stats(username, category_id):
         current_year_month_str = datetime.now().strftime("%Y-%m")
         available_months = [current_year_month_str]
 
-    session.close()
+    db_session.close()
 
     return render_template('category_stats.html',
                            category=category,
                            log_entries_data=entries_by_month_day,
                            available_months=available_months,
                            lifetime_stats=lifetime_stats,
-                           is_empty_category=(not log_entries),
-                           username=username)  # 🔧
+                           is_empty_category=(not log_entries))
 
 
 #Logger Form
-@app.route('/<username>/log/<int:category_id>', methods=['GET', 'POST'])
-def logger_form(username, category_id):
-    session = SessionLocal(username)  # 🔧
-    category = session.query(Category).filter(Category.id == category_id).first()
+@app.route('/log/<int:category_id>', methods=['GET', 'POST'])
+@login_required
+def logger_form(category_id):
+    username = session['username']
+    db_session = SessionLocal(username)
+    category = db_session.query(Category).filter(Category.id == category_id).first()
 
     if not category:
-        session.close()
+        db_session.close()
         return "Category not found", 404
 
     if request.method == 'POST':
@@ -157,22 +194,24 @@ def logger_form(username, category_id):
             duration=duration_int,
             notes=notes
         )
-        session.add(new_log_entry)
-        session.commit()
-        session.close()
-        return redirect(url_for('category_stats', username=username, category_id=category_id))  # 🔧
+        db_session.add(new_log_entry)
+        db_session.commit()
+        db_session.close()
+        return redirect(url_for('category_stats', category_id=category_id))
 
     current_date_iso = date.today().isoformat()
-    session.close()
-    return render_template('logger_form.html', category=category, current_date=current_date_iso, username=username)
+    db_session.close()
+    return render_template('logger_form.html', category=category, current_date=current_date_iso)
 
-@app.route('/<username>/edit_category/<int:category_id>', methods=['GET', 'POST'])
-def edit_category(username, category_id):
-    session = SessionLocal(username)  # 🔧
-    category_to_edit = session.query(Category).filter(Category.id == category_id).first()
+@app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
+@login_required
+def edit_category(category_id):
+    username = session['username']
+    db_session = SessionLocal(username)
+    category_to_edit = db_session.query(Category).filter(Category.id == category_id).first()
 
     if not category_to_edit:
-        session.close()
+        db_session.close()
         return "Category not found", 404
 
     if request.method == 'POST':
@@ -180,34 +219,36 @@ def edit_category(username, category_id):
         category_to_edit.icon = request.form['icon']
         category_to_edit.description = request.form['description']
         try:
-            session.commit()
+            db_session.commit()
         except Exception as e:
-            session.rollback()
+            db_session.rollback()
             print(f"Error committing changes: {e}")
             raise
         finally:
-            session.close()
+            db_session.close()
 
-        return redirect(url_for('category_stats', username=username, category_id=category_id))  # 🔧
+        return redirect(url_for('category_stats', category_id=category_id))
 
-    session.close()
-    return render_template('edit_category.html', category=category_to_edit, username=username)
+    db_session.close()
+    return render_template('edit_category.html', category=category_to_edit)
 
 
-@app.route('/<username>/delete_category/<int:category_id>/confirm')
-def delete_category_confirm(username, category_id):
-    session = SessionLocal(username)  # 🔧
-    category_to_delete = session.query(Category).filter(Category.id == category_id).first()
+@app.route('/delete_category/<int:category_id>/confirm')
+@login_required
+def delete_category_confirm(category_id):
+    username = session['username']
+    db_session = SessionLocal(username)
+    category_to_delete = db_session.query(Category).filter(Category.id == category_id).first()
 
     if not category_to_delete:
-        session.close()
+        db_session.close()
         return "Category not found", 404
 
-    session.delete(category_to_delete)
-    session.commit()
-    session.close()
+    db_session.delete(category_to_delete)
+    db_session.commit()
+    db_session.close()
 
-    return redirect(url_for('user_dashboard', username=username))  # 🔧
+    return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':
