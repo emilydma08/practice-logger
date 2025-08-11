@@ -9,8 +9,8 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>Edit Log for {{ log.category.icon }} {{ log.category.name }}</h1>
-            <a href="{{ url_for('category_stats', category_id=log.category.id) }}" class="close-btn">&times;</a>
+            <h1>Edit Log for {{ category.icon }} {{ category.name }}</h1>
+            <a href="{{ url_for('category_stats', category_id=category.id) }}" class="close-btn">&times;</a>
         </header>
 
         <form method="POST">
