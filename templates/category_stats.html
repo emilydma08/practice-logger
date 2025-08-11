@@ -52,20 +52,21 @@
         <h3 class="section-title">Lifetime Statistics</h3>
         <div class="stats-grid">
             <div class="stat-box">
+                <h4>Current Streak</h4>
+                <div class="stat-value" id="current-streak">{{ lifetime_stats.current_streak }} days</div>
+            </div>
+            <div class="stat-box">
+                <h4>Longest Streak</h4>
+                <div class="stat-value" id="longest-streak">{{ lifetime_stats.longest_streak }} days</div>
+            </div>
+            <div class="stat-box">
+                <h4>Avg Time / Day</h4>
+                <div class="stat-value" id="avg-time-day">{{ lifetime_stats.avg_time_per_day }} min</div>
+            </div>
+            <div class="stat-box">
                 <h4>Total Sessions</h4>
-            <div class="stat-value" id="total-sessions">{{ lifetime_stats.total_sessions }}</div>
-        </div>
-        <div class="stat-box">
-            <h4>Lifetime Time Spent (hrs)</h4>
-            <div class="stat-value" id="total-hours-spent">{{ lifetime_stats.total_hours_spent }}</div>
-        </div>
-        <div class="stat-box">
-            <h4>Avg. Per Week (hrs)</h4>
-            <div class="stat-value" id="avg-hours-week">{{ lifetime_stats.avg_hours_per_week }}</div>
-        </div>
-        <div class="stat-box">
-            <h4>Longest Session (min)</h4>
-            <div class="stat-value" id="longest-session">{{ lifetime_stats.longest_session_minutes }}</div>
+                <div class="stat-value" id="total-sessions">{{ lifetime_stats.total_sessions }}</div>
+            </div>
         </div>
     </div>
 
@@ -153,6 +154,35 @@
                         notesEl.innerHTML = `<strong>Notes:</strong> ${entry.notes}`;
                         entryCard.appendChild(notesEl);
                     }
+
+                    // Add Edit and Delete buttons
+                    const actionsEl = document.createElement('div');
+                    actionsEl.classList.add('log-entry-actions');
+
+                    const editLink = document.createElement('a');
+                    editLink.href = `/edit_log/${entry.id}`;
+                    editLink.textContent = 'Edit';
+                    editLink.classList.add('button', 'edit-log-btn');
+                    actionsEl.appendChild(editLink);
+
+                    const deleteForm = document.createElement('form');
+                    deleteForm.method = 'POST';
+                    deleteForm.action = `/delete_log/${entry.id}`;
+                    deleteForm.style.display = 'inline';
+                    deleteForm.addEventListener('submit', function(event) {
+                        if (!confirm('Are you sure you want to delete this log?')) {
+                            event.preventDefault();
+                        }
+                    });
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.type = 'submit';
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.classList.add('button', 'delete-log-btn');
+                    deleteForm.appendChild(deleteButton);
+                    actionsEl.appendChild(deleteForm);
+
+                    entryCard.appendChild(actionsEl);
                     dailyLogListEl.appendChild(entryCard);
                 });
             } else {
