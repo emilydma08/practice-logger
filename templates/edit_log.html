@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Log Entry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Edit Log for {{ log.category.icon }} {{ log.category.name }}</h1>
+            <a href="{{ url_for('category_stats', category_id=log.category.id) }}" class="close-btn">&times;</a>
+        </header>
+
+        <form method="POST">
+            <div>
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" value="{{ log.date.isoformat() }}" required>
+            </div>
+
+            <div>
+                <label for="duration">Duration (minutes)</label>
+                <input type="number" id="duration" name="duration" value="{{ log.duration }}" min="1" required>
+            </div>
+
+            <div>
+                <label for="notes">Notes (optional)</label>
+                <textarea id="notes" name="notes" rows="4" placeholder="What did you do? How did it go?">{{ log.notes or '' }}</textarea>
+            </div>
+
+            <button type="submit" class="form-button">Save Changes</button>
+        </form>
+    </div>
+</body>
+</html>

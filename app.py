@@ -104,6 +104,38 @@ def create_category():
     return render_template('create_category.html')
 
 
+def calculate_streaks(log_dates):
+    if not log_dates:
+        return 0, 0
+
+    unique_dates = sorted(list(set(log_dates)))
+
+    if not unique_dates:
+        return 0, 0
+
+    streaks = []
+    current_streak = 1
+    for i in range(1, len(unique_dates)):
+        if (unique_dates[i] - unique_dates[i-1]).days == 1:
+            current_streak += 1
+        else:
+            streaks.append(current_streak)
+            current_streak = 1
+    streaks.append(current_streak)
+
+    longest_streak = max(streaks) if streaks else 0
+
+    today = date.today()
+    last_log_date = unique_dates[-1]
+
+    current_streak_value = 0
+    # A streak is "current" if the last log was today or yesterday
+    if (today - last_log_date).days <= 1:
+        current_streak_value = streaks[-1]
+
+    return current_streak_value, longest_streak
+
+
 #Ind. Category Stats
 @app.route('/category_stats/<int:category_id>')
 @login_required
@@ -122,16 +154,26 @@ def category_stats(category_id):
     entries_by_month_day = defaultdict(lambda: defaultdict(list))
 
     lifetime_stats = {
+        'current_streak': 0,
+        'longest_streak': 0,
+        'avg_time_per_day': 0,
         'total_sessions': 0,
-        'total_minutes': 0,
-        'longest_session_minutes': 0,
-        'avg_hours_per_week': 0,
-        'total_hours_spent': 0
     }
 
     if log_entries:
-        min_date = log_entries[0].date
-        max_date = log_entries[-1].date
+        log_dates = [entry.date for entry in log_entries]
+        current_streak, longest_streak = calculate_streaks(log_dates)
+        lifetime_stats['current_streak'] = current_streak
+        lifetime_stats['longest_streak'] = longest_streak
+
+        total_duration = sum(entry.duration for entry in log_entries)
+        first_log_date = min(log_dates)
+        days_since_first_log = (date.today() - first_log_date).days + 1
+
+        if days_since_first_log > 0:
+            lifetime_stats['avg_time_per_day'] = round(total_duration / days_since_first_log, 1)
+
+        lifetime_stats['total_sessions'] = len(log_entries)
 
         for entry in log_entries:
             month_year_str = entry.date.strftime("%Y-%m")
@@ -146,21 +188,6 @@ def category_stats(category_id):
             })
 
         available_months.sort()
-        lifetime_stats['total_sessions'] = len(log_entries)
-
-        total_duration = db_session.query(func.sum(LogEntry.duration)).filter_by(category_id=category_id, username=username).scalar()
-        lifetime_stats['total_minutes'] = total_duration if total_duration else 0
-        lifetime_stats['total_hours_spent'] = math.ceil(lifetime_stats['total_minutes'] / 60)
-
-        longest_session = db_session.query(func.max(LogEntry.duration)).filter_by(category_id=category_id, username=username).scalar()
-        lifetime_stats['longest_session_minutes'] = longest_session if longest_session else 0
-
-        total_days_span = max(1, (max_date - min_date).days + 1)
-        total_weeks = max(1, math.ceil(total_days_span / 7))
-
-        if lifetime_stats['total_minutes'] > 0:
-            total_hours = lifetime_stats['total_minutes'] / 60
-            lifetime_stats['avg_hours_per_week'] = round(total_hours / total_weeks, 1)
 
     else:
         current_year_month_str = datetime.now().strftime("%Y-%m")
@@ -211,6 +238,62 @@ def logger_form(category_id):
     current_date_iso = date.today().isoformat()
     db_session.close()
     return render_template('logger_form.html', category=category, current_date=current_date_iso)
+
+
+@app.route('/edit_log/<int:log_id>', methods=['GET', 'POST'])
+@login_required
+def edit_log(log_id):
+    username = session['username']
+    db_session = SessionLocal()
+    log_to_edit = db_session.query(LogEntry).filter_by(id=log_id, username=username).first()
+
+    if not log_to_edit:
+        db_session.close()
+        return "Log entry not found", 404
+
+    if request.method == 'POST':
+        form_date_str = request.form['date']
+        duration_str = request.form['duration']
+        notes = request.form.get('notes')
+
+        log_to_edit.date = date.fromisoformat(form_date_str)
+        log_to_edit.duration = int(duration_str)
+        log_to_edit.notes = notes
+
+        try:
+            db_session.commit()
+            db_session.close()
+        except Exception as e:
+            db_session.rollback()
+            db_session.close()
+            # In a real app, you'd log this error
+            raise
+
+        return redirect(url_for('category_stats', category_id=log_to_edit.category_id))
+
+    # For GET request
+    db_session.close()
+    return render_template('edit_log.html', log=log_to_edit)
+
+
+@app.route('/delete_log/<int:log_id>', methods=['POST'])
+@login_required
+def delete_log(log_id):
+    username = session['username']
+    db_session = SessionLocal()
+    log_to_delete = db_session.query(LogEntry).filter_by(id=log_id, username=username).first()
+
+    if not log_to_delete:
+        db_session.close()
+        return "Log entry not found", 404
+
+    category_id = log_to_delete.category_id
+    db_session.delete(log_to_delete)
+    db_session.commit()
+    db_session.close()
+
+    return redirect(url_for('category_stats', category_id=category_id))
+
 
 @app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
 @login_required
