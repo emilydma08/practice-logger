@@ -590,3 +590,38 @@ form textarea {
     background-color: #f0f0f0;
     outline: none;
 }
+
+.log-entry-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.log-entry-actions .button {
+    padding: 0.25rem 0.75rem; /* Smaller padding */
+    font-size: 0.8rem;      /* Smaller font */
+    border-radius: 6px;     /* Slightly smaller radius */
+    text-decoration: none;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
+}
+
+.log-entry-actions .edit-log-btn {
+    background-color: var(--yellow);
+}
+
+.log-entry-actions .edit-log-btn:hover {
+    background-color: var(--darkYellow);
+}
+
+.log-entry-actions .delete-log-btn {
+    background-color: #dc3545; /* Red for delete */
+}
+
+.log-entry-actions .delete-log-btn:hover {
+    background-color: #c82333; /* Darker red */
+}

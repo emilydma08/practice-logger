@@ -272,8 +272,13 @@ def edit_log(log_id):
         return redirect(url_for('category_stats', category_id=log_to_edit.category_id))
 
     # For GET request
+    category_info = {
+        'id': log_to_edit.category_id,
+        'icon': log_to_edit.category.icon,
+        'name': log_to_edit.category.name
+    }
     db_session.close()
-    return render_template('edit_log.html', log=log_to_edit)
+    return render_template('edit_log.html', log=log_to_edit, category=category_info)
 
 
 @app.route('/delete_log/<int:log_id>', methods=['POST'])
